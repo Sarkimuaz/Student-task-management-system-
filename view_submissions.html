@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><title>View Submissions</title>
+    <style>
+        body{background:#f4f4f4; font-family:Arial;}
+        .header{background:#2563eb; color:white; padding:20px; text-align:center;}
+        .container{padding:20px; max-width:900px; margin:auto;}
+        .submission{background:white; padding:15px; border-radius:10px; margin:10px 0; border-left:4px solid #2563eb;}
+        .submission h4{color:#2563eb; margin-bottom:5px;}
+        .grade-form{margin-top:10px; display:flex; gap:10px;}
+        .grade-form input{width:80px; padding:8px; border:2px solid #ddd; border-radius:6px;}
+        .grade-btn{background:#10b981; color:white; border:none; padding:8px 15px; border-radius:6px; cursor:pointer;}
+        .grade-btn:hover{background:#059669;}
+        .graded{background:#10b981; color:white; padding:5px 10px; border-radius:20px; font-size:12px;}
+    </style>
+</head>
+<body>
+    <div class="header"><h1>Student Submissions</h1></div>
+    <div class="container" id="submissionsList"></div>
+
+    
+    <script>
+window.onload = function(){
+    let urlParams = new URLSearchParams(window.location.search);
+    let taskId = parseInt(urlParams.get('id'));
+
+    let submissions = JSON.parse(localStorage.getItem('submissions')) || [];
+    let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+
+    let task = tasks.find(t => t.id == taskId);
+    document.querySelector('h1').innerText = 'Submissions for: ' + task.title;
+
+    let taskSubmissions = submissions.filter(s => s.taskId == taskId);
+    let list = document.querySelector('.submissions-list');
+
+    if(taskSubmissions.length == 0){
+        list.innerHTML = '<p>No submissions yet</p>';
+    } else {
+        taskSubmissions.forEach(s => {
+            list.innerHTML += `
+            <div class="submission-item">
+                <p><b>Student:</b> ${s.studentName}</p>
+                <p><b>Submitted:</b> ${s.submittedAt}</p>
+                <p><b>Answer:</b> ${s.answer}</p>
+                <p><b>File:</b> <a href="${s.file}" download="${s.fileName}">${s.fileName}</a></p>
+
+                <div style="margin-top:10px;">
+                    <input type="number" id="score${s.id}" placeholder="Score e.g 80" style="width:100px;">
+                    <input type="text" id="comment${s.id}" placeholder="Comment" style="width:200px;">
+                    <button onclick="gradeSubmission(${s.id})">Submit Grade</button>
+                </div>
+                <p id="graded${s.id}" style="color:green;"></p>
+                <hr>
+            </div>
+            `;
+        });
+    }
+}
+
+function gradeSubmission(id){
+    let score = document.getElementById('score'+id).value;
+    let comment = document.getElementById('comment'+id).value;
+
+    let submissions = JSON.parse(localStorage.getItem('submissions')) || [];
+    let subIndex = submissions.findIndex(s => s.id == id);
+
+    submissions[subIndex].score = score;
+    submissions[subIndex].comment = comment;
+    submissions[subIndex].graded = true;
+
+    localStorage.setItem('submissions', JSON.stringify(submissions));
+    document.getElementById('graded'+id).innerText = `Graded: ${score}/100 - ${comment}`;
+    alert("Graded Successfully!");
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Submit Task</title>
+    <style>
+        *{margin:0; padding:0; box-sizing:border-box; font-family:Arial;}
+        body{background:#f4f4f4;}
+       .header{background:#10b981; color:white; padding:20px; text-align:center;}
+       .container{padding:20px; max-width:700px; margin:auto;}
+       .task-info{background:white; padding:20px; border-radius:10px; margin-bottom:20px; border-left:5px solid #10b981;}
+       .task-info h2{color:#10b981;}
+       .due{color:red; font-weight:bold;}
+       .submit-form{background:white; padding:25px; border-radius:10px;}
+       .submit-form label{display:block; margin-top:15px; font-weight:bold;}
+       .submit-form textarea{width:100%; padding:10px; margin-top:5px; border:2px solid #ddd; border-radius:8px; min-height:120px;}
+       .submit-form input[type="file"]{margin-top:10px; padding:10px; border:2px dashed #10b981; border-radius:8px; width:100%;}
+       .submit-form button{width:100%; background:#10b981; color:white; border:none; padding:14px; border-radius:8px; font-size:16px; font-weight:bold; margin-top:20px; cursor:pointer;}
+       .back-btn{display:block; text-align:center; margin-top:15px; color:#2563eb; text-decoration:none;}
+    </style>
+</head>
+<body>
+    <div class="header"><h1>Submit Your Task</h1></div>
+    <div class="container">
+        <div class="task-info" id="taskInfo"></div>
+        <div class="submit-form">
+            <h3>Upload Your Work</h3>
+            <form onsubmit="submitWork(event)">
+                <label for="comment">Comment / Notes</label>
+                <textarea id="comment" placeholder="Write any notes for your teacher here..."></textarea>
+                <label for="file">Upload File Name</label>
+                <input type="text" id="file" placeholder="E.g: my_assignment.pdf" required>
+                <button type="submit">Submit Task</button>
+            </form>
+            <a href="student_dashboard.html" class="back-btn">← Back to Dashboard</a>
+        </div>
+    </div>
+
+    <script>
+    let taskId;
+    // 1. Lokacin da page ta load sai ta dauko task din
+    window.onload = function(){
+        const urlParams = new URLSearchParams(window.location.search);
+        taskId = urlParams.get('id');
+        let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+        let task = tasks.find(t => t.id == taskId);
+        
+        // WANNAN SABO NE - CHECK
+        if(!task){
+            document.getElementById('taskInfo').innerHTML = `
+                <h2 style="color:red;">Error: Task Not Found ❌</h2>
+                <p>Please go back to dashboard and click "Submit Task" button again.</p>
+                <a href="student_dashboard.html">← Back to Dashboard</a>
+            `;
+            return; // Tsaya nan
+        }
+
+        // Idan ya sami task sai ya nuna
+        document.getElementById('taskInfo').innerHTML = `
+            <h2>${task.title}</h2>
+            <p><b>Instruction:</b> ${task.desc}</p>
+            <p class="due">Due Date: ${task.dueDate}</p>
+            <p><b>By:</b> ${task.teacherName}</p>
+        `;
+    }
+
+    // 2. Lokacin da aka tura
+    function submitWork(e){
+        e.preventDefault();
+        if(!taskId){
+            alert("Error: No task selected");
+            return;
+        }
+        let comment = document.getElementById('comment').value;
+        let fileName = document.getElementById('file').value;
+        let currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        
+        let submissions = JSON.parse(localStorage.getItem('submissions')) || [];
+        
+        let newSubmission = {
+            id: Date.now(),
+            taskId: taskId,
+            studentId: currentUser.id,
+            studentName: currentUser.name,
+            comment,
+            fileName,
+            submittedAt: new Date().toLocaleString()
+        };
+        submissions.push(newSubmission);
+        localStorage.setItem('submissions', JSON.stringify(submissions));
+
+        alert("Task Submitted Successfully! ✅");
+        window.location.href = "student_dashboard.html";
+    }
+</script>
+</body>
+</html>

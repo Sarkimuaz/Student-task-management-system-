@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Admin Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+body{font-family:'Segoe UI'; background:#f4f6f9; margin:0; padding-bottom:80px;}
+.header{background:#8e44ad; color:white; padding:15px 20px; position:sticky; top:0;}
+.container{padding:20px;}
+.card{background:white; padding:20px; border-radius:12px; box-shadow:0 2px 5px rgba(0,0,0,0.1); margin-bottom:20px;}
+.stats{display:grid; grid-template-columns:1fr 1fr; gap:15px;}
+.stat-box{background:#8e44ad; color:white; padding:20px; border-radius:12px; text-align:center;}
+.stat-box h1{margin:0; font-size:40px;}
+.btn-purple{background:#8e44ad; color:white; border:none; padding:12px; border-radius:8px; width:100%; font-weight:bold; cursor:pointer; margin:5px 0;}
+.btn-green{background:#27ae60; color:white; border:none; padding:5px 10px; border-radius:5px;}
+input, textarea{width:100%; padding:10px; margin:8px 0; border:1px solid #ddd; border-radius:8px; box-sizing:border-box;}
+.hidden{display:none;}
+.bottom-nav{position:fixed; bottom:0; left:0; right:0; background:white; display:flex; justify-content:space-around; padding:10px 0; box-shadow:0 -2px 10px rgba(0,0,0,0.1);}
+.nav-item{text-align:center; color:#777; cursor:pointer; font-size:12px;}
+.nav-item .material-icons{font-size:26px; display:block;}
+.nav-item.active{color:#8e44ad; font-weight:bold;}
+.list-item{display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #eee;}
+</style>
+</head>
+<body>
+<div class="header"><h2 id="pageTitle">Home</h2></div>
+
+<div class="container">
+  <!-- PAGE 1: HOME -->
+  <div id="page-home">
+    <div class="stats">
+      <div class="stat-box"><h1 id="studentCount">0</h1><p>Students</p></div>
+      <div class="stat-box" style="background:#3498db;"><h1 id="teacherCount">0</h1><p>Lecturers</p></div>
+    </div>
+    <div class="card">
+      <h3>Quick Actions</h3>
+      <button class="btn-purple" onclick="showPage('students')"><span class="material-icons">person_add</span> Add New Student</button>
+      <button class="btn-purple" style="background:#3498db;" onclick="showPage('teachers')"><span class="material-icons">person_add</span> Add New Lecturer</button>
+      <button class="btn-purple" style="background:#e67e22;" onclick="showPage('assignments')"><span class="material-icons">assignment</span> Post Assignment</button>
+    </div>
+  </div>
+
+  <!-- PAGE 2: STUDENTS -->
+  <div id="page-students" class="hidden">
+    <div class="card">
+      <h3>Add New Student</h3>
+      <input id="sName" placeholder="Sunan Student">
+      <input id="sEmail" placeholder="Email na Student">
+      <input id="sPass" placeholder="Password">
+      <button class="btn-purple" onclick="addUser('student')">Add Student</button>
+    </div>
+    <div class="card">
+      <h3>List of Students</h3>
+      <div id="studentList">Loading...</div>
+    </div>
+  </div>
+
+  <!-- PAGE 3: TEACHERS -->
+  <div id="page-teachers" class="hidden">
+    <div class="card">
+      <h3>Add New Lecturer</h3>
+      <input id="tName" placeholder="Sunan Lecturer">
+      <input id="tEmail" placeholder="Email na Lecturer">
+      <input id="tPass" placeholder="Password">
+      <button class="btn-purple" style="background:#3498db;" onclick="addUser('teacher')">Add Lecturer</button>
+    </div>
+    <div class="card">
+      <h3>List of Lecturers</h3>
+      <div id="teacherList">Loading...</div>
+    </div>
+  </div>
+
+  <!-- PAGE 4: ASSIGNMENTS -->
+  <div id="page-assignments" class="hidden">
+    <div class="card"><h3>Post New Assignment</h3>
+      <input id="courseCode" placeholder="Course Code">
+      <input id="courseTitle" placeholder="Course Title">
+      <textarea id="desc" placeholder="Bayanin Assignment"></textarea>
+      <input type="date" id="dueDate">
+      <button class="btn-purple" style="background:#e67e22;" onclick="addTask()">Post Assignment</button>
+    </div>
+  </div>
+
+  <!-- PAGE 5: PROFILE -->
+  <div id="page-profile" class="hidden">
+    <div class="card" style="text-align:center;">
+      <span class="material-icons" style="font-size:60px; color:#8e44ad;">admin_panel_settings</span>
+      <h3>Admin</h3>
+      <p>admin@gmail.com</p>
+      <button class="btn-purple" style="background:#e74c3c;" onclick="logout()">Logout</button>
+    </div>
+  </div>
+</div>
+
+<!-- BOTTOM NAVIGATION -->
+<div class="bottom-nav">
+  <div class="nav-item active" onclick="showPage('home', this)">
+    <span class="material-icons">home</span>Home
+  </div>
+  <div class="nav-item" onclick="showPage('students', this)">
+    <span class="material-icons">school</span>Students
+  </div>
+  <div class="nav-item" onclick="showPage('teachers', this)">
+    <span class="material-icons">groups</span>Lecturers
+  </div>
+  <div class="nav-item" onclick="showPage('profile', this)">
+    <span class="material-icons">account_circle</span>Profile
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyA1fy2BvuM-mBDM5fuZID9NbkMsx-6ie0U",
+  authDomain: "student-task-system.firebaseapp.com",
+  databaseURL: "https://student-task-system-default-rtdb.firebaseio.com",
+  projectId: "student-task-system"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+function showPage(page, el){
+    document.querySelectorAll('[id^="page-"]').forEach(p => p.classList.add('hidden'));
+    document.getElementById('page-' + page).classList.remove('hidden');
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    if(el) el.classList.add('active');
+    document.getElementById('pageTitle').innerText = page.charAt(0).toUpperCase() + page.slice(1);
+    loadUsers();
+}
+
+function logout(){ localStorage.removeItem('currentUser'); window.location.href = 'login.html'; }
+
+function addUser(role){
+    let name = document.getElementById(role.charAt(0)+'Name').value;
+    let email = document.getElementById(role.charAt(0)+'Email').value;
+    let password = document.getElementById(role.charAt(0)+'Pass').value;
+    if(name=="" || email=="" || password==""){ alert("Cika duka"); return; }
+    let key = email.replace('.',',');
+    db.ref('users/' + key).set({name, email, password, role, status: 'approved'})
+   .then(()=> { alert("An kara " + role + " ✅"); loadUsers(); });
+}
+
+function loadUsers(){
+    let sCount=0, tCount=0, sHtml='', tHtml='';
+    db.ref('users').on('value', snap=>{
+        snap.forEach(child=>{
+            let u = child.val();
+            if(u.role == 'student'){ sCount++; sHtml += `<div class="list-item"><span>${u.name}</span><span>${u.email}</span></div>`; }
+            if(u.role == 'teacher'){ tCount++; tHtml += `<div class="list-item"><span>${u.name}</span><span>${u.email}</span></div>`; }
+        });
+        document.getElementById('studentCount').innerText = sCount;
+        document.getElementById('teacherCount').innerText = tCount;
+        document.getElementById('studentList').innerHTML = sHtml || "Babu student";
+        document.getElementById('teacherList').innerHTML = tHtml || "Babu lecturer";
+    });
+}
+
+function addTask(){
+    let id = 'task_' + Date.now();
+    db.ref('tasks/' + id).set({
+        courseCode: document.getElementById('courseCode').value,
+        courseTitle: document.getElementById('courseTitle').value,
+        description: document.getElementById('desc').value,
+        dueDate: document.getElementById('dueDate').value
+    }).then(()=> alert("An saka Assignment ✅"));
+}
+loadUsers(); // kira shi da farko
+</script>
+</body>
+</html>
