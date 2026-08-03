@@ -1,4 +1,4 @@
-No<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
 <title>Register - Task System</title>
@@ -40,6 +40,7 @@ a{text-align:center; display:block; margin-top:10px; color:#3498db; text-decorat
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 <script>
+
 const firebaseConfig = {
   apiKey: "AIzaSyA1fy2BvuM-mBDM5fuZID9NbkMsx-6ie0U",
   authDomain: "student-task-system.firebaseapp.com",
@@ -52,12 +53,12 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-registerBtn.onclick = function(){
+function register(){ // <- Na gyara nan
   let name = document.getElementById('name').value.trim();
   let email = document.getElementById('email').value.trim();
   let password = document.getElementById('password').value.trim();
   let role = document.getElementById('role').value;
-  let dept = document.getElementById('dept').value; // <- wannan
+  let dept = document.getElementById('dept').value;
 
   if(name=="" || email=="" || password=="" || role=="" || dept==""){
     alert("Fill all the fields "); 
@@ -71,17 +72,17 @@ registerBtn.onclick = function(){
     email, 
     password, 
     role, 
-    dept, // <- wannan
+    dept,
     status: 'pending'
   })
   .then(()=>{ 
-    alert("Registration Successful, wait Admin to approve"); 
+    alert("Registration Successful,Just Wait for Admin to approve"); 
     window.location.href = 'index.html'; 
   })
   .catch((error)=>{
     alert("Error: " + error.message);
   });
-    }
+} // <- kuma nan
 </script>
 </body>
 </html>
