@@ -28,6 +28,7 @@ input, textarea{width:100%; padding:10px; margin:8px 0; border:1px solid #ddd; b
 </style>
 </head>
 <body>
+  <h1 Style="position:center;text-align:center>Welcome back to Your Dashboard</h1>
 <div class="header">
   <h2 id="pageTitle">Home</h2>
   <span class="material-icons" style="position:relative; cursor:pointer;" onclick="showPage('notifications', document.querySelectorAll('.nav-item')[3])">
@@ -57,7 +58,7 @@ input, textarea{width:100%; padding:10px; margin:8px 0; border:1px solid #ddd; b
   <!-- PAGE 3: NOTIFICATIONS -->
   <div id="page-notifications" class="hidden">
     <h3>Notifications</h3>
-    <div id="notifList">Babu notification</div>
+    <div id="notifList">No  notification</div>
   </div>
 
   <!-- PAGE 4: PROFILE -->
@@ -67,9 +68,9 @@ input, textarea{width:100%; padding:10px; margin:8px 0; border:1px solid #ddd; b
       <h3 id="sName"></h3>
       <p id="sEmail"></p>
       <div style="text-align:left; background:#f8fafc; padding:15px; border-radius:12px; margin:15px 0;">
-          <p><b>Suna:</b> <span id="pName"></span></p>
+          <p><b>Name:</b> <span id="pName"></span></p>
           <p><b>Email:</b> <span id="pEmail"></span></p>
-          <p><b>Jami'a:</b> <span>Katsina State University</span></p>
+          <p><b>School:</b> <span>Federal polytechnic daura</span></p>
       </div>
       <button class="btn btn-red" onclick="logout()">Logout</button>
     </div>
@@ -95,7 +96,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 let currentUser = JSON.parse(localStorage.getItem('currentUser'));
-if(!currentUser || currentUser.role!= 'student'){ window.location.href = 'login.html'; }
+if(!currentUser || currentUser.role!= 'student'){ window.location.href = 'Index.html'; }
 let studentKey = currentUser.email.replace('.',',');
 
 function showPage(page, el){
@@ -103,7 +104,7 @@ function showPage(page, el){
     document.getElementById('page-' + page).classList.remove('hidden');
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
     if(el) el.classList.add('active');
-    document.getElementById('pageTitle').innerText = page.charAt(0).toUpperCase() + page.slice(1);
+    document.getElementById('pageTitle').innerText = page .charAt(0).toUpperCase() + page.slice(1);
 
     if(page == 'profile'){
         document.getElementById('sName').innerText = currentUser.name;
@@ -115,12 +116,12 @@ function showPage(page, el){
     if(page == 'home'){ loadTaskDropdown(); }
     if(page == 'notifications'){ loadNotifications(); markNotificationsAsRead(); }
 }
-function logout(){ localStorage.removeItem('currentUser'); window.location.href = 'login.html'; }
+function logout(){ localStorage.removeItem('currentUser'); window.location.href = 'Index.html'; }
 
 // 1. HOME: LOAD TASKS + SUBMIT
 function loadTaskDropdown(){
     db.ref('tasks').once('value', snap=>{
-        let options = '<option>Zabi Assignment...</option>';
+        let options = '<option>Choose your Assignment...</option>';
         snap.forEach(child=>{ options += `<option value="${child.key}">${child.val().courseCode} - ${child.val().courseTitle}</option>`; });
         document.getElementById('taskId').innerHTML = options;
     });
@@ -139,12 +140,12 @@ function loadQuestion(){
 function submitTask(){
     let taskId = document.getElementById('taskId').value;
     let answer = document.getElementById('answer').value;
-    if(taskId=="Zabi Assignment..." || answer==""){ alert("Cika duka"); return; }
+    if(taskId=="Choose your Assignment ..." || answer==""){ alert("Write your Answer"); return; }
     db.ref('submissions/' + taskId + '/' + studentKey).set({
         answer: answer, name: currentUser.name, time: Date.now(), status: "pending", grade: "", feedback: ""
     }).then(()=> {
-        alert("An tura amsarka ✅");
-        addNotification("An tura amsa na " + taskId); // Aika notification
+        alert("Successfully ✅");
+        addNotification("Successfully " + taskId); // Aika notification
         document.getElementById('answer').value = "";
         loadMyTasksStatus();
     });
@@ -175,7 +176,7 @@ function loadMyTasksStatus(){
                     </div>`;
                 }
             });
-            document.getElementById('myTasksStatus').innerHTML = html || "<div class='card'>Ba ka tura kowace amsa ba tukuna</div>";
+            document.getElementById('myTasksStatus').innerHTML = html || "<div class='card'>You don't Send an Assignment yet</div>";
         });
     });
 }
