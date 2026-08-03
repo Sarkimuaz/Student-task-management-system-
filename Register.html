@@ -15,13 +15,24 @@ a{text-align:center; display:block; margin-top:10px; color:#3498db; text-decorat
 <body>
 <div class="box">
     <h2>Register</h2>
-    <input type="text" id="name" placeholder="Cikakken Suna">
+    <input type="text" id="name" placeholder="Full Name">
     <input type="email" id="email" placeholder="Email">
     <input type="password" id="password" placeholder="Password">
-    <select id="role">
-        <option value="student">Student</option>
-        <option value="teacher">Teacher</option>
-    </select>
+  <label>Role</label>
+<select id="role">
+  <option value="student">Student</option>
+  <option value="teacher">Lecturer</option>
+</select>
+
+<label>Department</label>
+<select id="dept">
+  <option value="">-- Choose Your Department --</option>
+  <option value="Computer Science">Computer Science</option>
+  <option value="Accounting">Accounting</option>
+  <option value="Business Admin">Business Admin</option>
+  <option value="Mass Comm">Mass Comm</option>
+  <option value="Economics">Economics</option>
+</select>
     <button onclick="register()">Register</button>
     <a href="login.html">Already have account? Login</a>
 </div>
@@ -46,10 +57,10 @@ function register(){
     let email = document.getElementById('email').value;
     let password = document.getElementById('password').value;
     let role = document.getElementById('role').value;
-    if(name=="" || email=="" || password==""){ alert("Cika duka"); return; }
+    if(name=="" || email=="" || password==""){ alert("Fill the field "); return; }
     let key = email.replace('.',',');
     db.ref('users/' + key).set({name, email, password, role, status: 'pending'})
-   .then(()=> { alert("An yi Register! Jira Admin ya amince maka ✅"); window.location.href = 'login.html'; });
+   .then(()=> { alert(" Registration Successful wait Admin to approve✅"); window.location.href = 'Index.html'; });
 }
 </script>
 </body>
