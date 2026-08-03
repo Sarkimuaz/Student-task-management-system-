@@ -76,12 +76,6 @@ input, textarea{width:100%; padding:10px; margin:8px 0; border:1px solid #ddd; b
       <div class="stat-box"><h1 id="studentCount">0</h1><p>Students</p></div>
       <div class="stat-box" style="background:#3498db;"><h1 id="teacherCount">0</h1><p>Lecturers</p></div>
     </div>
-    <div class="card">
-      <h3>Quick Actions</h3>
-      <button class="btn-purple" onclick="showPage('students')"><span class="material-icons">person_add</span> Add New Student</button>
-      <button class="btn-purple" style="background:#3498db;" onclick="showPage('teachers')"><span class="material-icons">person_add</span> Add New Lecturer</button>
-      <button class="btn-purple" style="background:#e67e22;" onclick="showPage('assignments')"><span class="material-icons">assignment</span> Post Assignment</button>
-    </div>
   </div>
 
   <!-- PAGE 2: STUDENTS -->
@@ -103,8 +97,8 @@ input, textarea{width:100%; padding:10px; margin:8px 0; border:1px solid #ddd; b
   <div id="page-teachers" class="hidden">
     <div class="card">
       <h3>Add New Lecturer</h3>
-      <input id="tName" placeholder="Sunan Lecturer">
-      <input id="tEmail" placeholder="Email na Lecturer">
+      <input id="tName" placeholder="Name of Lecturer">
+      <input id="tEmail" placeholder="Email of Lecturer">
       <input id="tPass" placeholder="Password">
       <button class="btn-purple" style="background:#3498db;" onclick="addUser('teacher')">Add Lecturer</button>
     </div>
