@@ -24,19 +24,21 @@ input, textarea{width:100%; padding:10px; margin:8px 0; border:1px solid #ddd; b
 </style>
 </head>
 <body>
-<div class="header"><h2 id="pageTitle">Home</h2></div>
-  <h2>Users Waiting for Approval</h2>
-<div id="pendingList"></div>
-
-<h2>Approved Lecturers</h2>
-<div id="lectList"></div>
-
-<h2>Approved Students</h2>
-<div id="studList"></div>
-
 <div class="container">
   <!-- PAGE 1: HOME -->
   <div id="page-home">
+    <h2>Users Waiting for Approval <span id="pendingCount">0</span></h2>
+<div id="pendingList"></div>
+
+<hr>
+
+<h2>Approved Lecturers <span id="teacherCount">0</span></h2>
+<div id="lectList"></div>
+
+<hr>
+
+<h2>Approved Students <span id="studentCount">0</span></h2>
+<div id="studList"></div>
     <div class="stats">
       <div class="stat-box"><h1 id="studentCount">0</h1><p>Students</p></div>
       <div class="stat-box" style="background:#3498db;"><h1 id="teacherCount">0</h1><p>Lecturers</p></div>
