@@ -57,11 +57,14 @@ function register(){
     let email = document.getElementById('email').value;
     let password = document.getElementById('password').value;
     let role = document.getElementById('role').value;
-    if(name=="" || email=="" || password==""){ alert("Fill the field "); return; }
-    let key = email.replace('.',',');
-    db.ref('users/' + key).set({name, email, password, role, status: 'pending'})
-   .then(()=> { alert(" Registration Successful wait Admin to approve✅"); window.location.href = 'Index.html'; });
-}
+    let dept = document.getElementById('dept').value;
+if(name=="" || email=="" || password=="" || role=="" || dept=="")
+  { alert("Fill the field "); return; }
+
+let key = email.replace(/\./g, '_');
+
+db.ref('users/' + key).set({name, email, password, role, dept, status: 'pending'})
+.then(()=>{ alert("Registration Successful wait Admin to approve"); window.location.href = 'index.html'; });
 </script>
 </body>
 </html>
