@@ -167,16 +167,16 @@ function showPage(page, el){
     loadUsers();
 }
 
-function logout(){ localStorage.removeItem('currentUser'); window.location.href = 'login.html'; }
+function logout(){ localStorage.removeItem('currentUser'); window.location.href = 'Index.html'; }
 
 function addUser(role){
     let name = document.getElementById(role.charAt(0)+'Name').value;
     let email = document.getElementById(role.charAt(0)+'Email').value;
     let password = document.getElementById(role.charAt(0)+'Pass').value;
-    if(name=="" || email=="" || password==""){ alert("Cika duka"); return; }
+    if(name=="" || email=="" || password==""){ alert("fill the field "); return; }
     let key = email.replace('.',',');
     db.ref('users/' + key).set({name, email, password, role, status: 'approved'})
-   .then(()=> { alert("An kara " + role + " ✅"); loadUsers(); });
+   .then(()=> { alert(" Added " + role + " ✅"); loadUsers(); });
 }
 function loadUsers(){
   let sCount=0, tCount=0, pCount=0;
@@ -190,12 +190,11 @@ function loadUsers(){
       if(u.status == 'pending'){
         pCount++;
         pHtml += `<div class="list-item">
-          <span><b>${u.name}</b></span>
-          <span>${u.email}</span>
-          <span>${u.role}</span>
-          <button onclick="approveUser('${id}')" style="background:green; color:white">Approve</button>
-          <button onclick="deleteUser('${id}')" style="background:red; color:white">Delete</button>
-        </div>`;
+  <span><b>${u.name}</b> - ${u.role} - <small>${u.dept}</small></span>
+  <span>${u.email}</span>
+  <button onclick="approveUser('${id}')">Approve✔️</button>
+  <button onclick="deleteUser('${id}')">Delete❌</button>
+</div>`;
       }
       if(u.role == 'student' && u.status == 'approved'){
         sCount++;
@@ -237,7 +236,7 @@ function addTask(){
         courseTitle: document.getElementById('courseTitle').value,
         description: document.getElementById('desc').value,
         dueDate: document.getElementById('dueDate').value
-    }).then(()=> alert("An saka Assignment ✅"));
+    }).then(()=> alert(" Assignment Created✅"));
 }
 loadUsers(); // kira shi da farko
 </script>
