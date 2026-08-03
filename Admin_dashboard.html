@@ -54,6 +54,13 @@ input, textarea{width:100%; padding:10px; margin:8px 0; border:1px solid #ddd; b
   padding: 6px 12px;
   border: none;
   border-radius: 6px
+  .list-item small{
+  background:#ecf0f1;
+  padding:2px 8px;
+  border-radius:5px;
+  color:#2c3e50;
+  font-size:12px;
+  }
 </style>
 </head>
 <body>
@@ -197,13 +204,21 @@ function loadUsers(){
 </div>`;
       }
       if(u.role == 'student' && u.status == 'approved'){
-        sCount++;
-        sHtml += `<div class="list-item"><span>${u.name}</span><span>${u.email}</span><button onclick="deleteUser('${id}')">Delete</button></div>`;
-      }
+  sCount++;
+  sHtml += `<div class="list-item">
+    <span>${u.name} - <small>${u.dept}</small></span>
+    <span>${u.email}</span>
+    <button onclick="deleteUser('${id}')">Delete</button>
+  </div>`;
+}
       if(u.role == 'teacher' && u.status == 'approved'){
-        tCount++;
-        tHtml += `<div class="list-item"><span>${u.name}</span><span>${u.email}</span><button onclick="deleteUser('${id}')">Delete</button></div>`;
-      }
+  tCount++;
+  tHtml += `<div class="list-item">
+    <span>${u.name} - <small>${u.dept}</small></span>
+    <span>${u.email}</span>
+    <button onclick="deleteUser('${id}')">Delete</button>
+  </div>`;
+  }
     });
 
     document.getElementById('studentCount').innerText = sCount;
