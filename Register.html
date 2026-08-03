@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+No<!DOCTYPE html>
 <html>
 <head>
 <title>Register - Task System</title>
@@ -52,19 +52,36 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-function register(){
-    let name = document.getElementById('name').value;
-    let email = document.getElementById('email').value;
-    let password = document.getElementById('password').value;
-    let role = document.getElementById('role').value;
-    let dept = document.getElementById('dept').value;
-if(name=="" || email=="" || password=="" || role=="" || dept=="")
-  { alert("Fill the field "); return; }
+registerBtn.onclick = function(){
+  let name = document.getElementById('name').value.trim();
+  let email = document.getElementById('email').value.trim();
+  let password = document.getElementById('password').value.trim();
+  let role = document.getElementById('role').value;
+  let dept = document.getElementById('dept').value; // <- wannan
 
-let key = email.replace(/\./g, '_');
+  if(name=="" || email=="" || password=="" || role=="" || dept==""){
+    alert("Fill all the fields "); 
+    return; 
+  }
 
-db.ref('users/' + key).set({name, email, password, role, dept, status: 'pending'})
-.then(()=>{ alert("Registration Successful wait Admin to approve"); window.location.href = 'index.html'; });
+  let key = email.replace(/\./g, '_');
+
+  db.ref('users/' + key).set({
+    name, 
+    email, 
+    password, 
+    role, 
+    dept, // <- wannan
+    status: 'pending'
+  })
+  .then(()=>{ 
+    alert("Registration Successful, wait Admin to approve"); 
+    window.location.href = 'index.html'; 
+  })
+  .catch((error)=>{
+    alert("Error: " + error.message);
+  });
+    }
 </script>
 </body>
 </html>
