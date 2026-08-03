@@ -14,16 +14,17 @@ a{text-align:center; display:block; margin-top:10px; color:#3498db; text-decorat
 </head>
 <body>
 <div class="box">
+    <h1 style ="position:center;text-align:center">Welcome To Student Task Management System</h1>
     <h2>Login</h2>
-    <input type="email" id="email" placeholder="Saka Email">
-    <input type="password" id="password" placeholder="Saka Password">
-    <select id="role">
+    <input type="email" id="email" placeholder="Enter your Email">
+    <input type="password" id="password" placeholder="Enter your Password">
+    <select id="role">Role
         <option value="student">Student</option>
         <option value="teacher">Teacher</option>
         <option value="admin">Admin</option>
     </select>
     <button onclick="login()">Login</button>
-    <a href="register.html">Ba ka da account? Register</a>
+    <a href="register.html">You don't have account? Register</a>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -48,7 +49,7 @@ function login(){
     let role = document.getElementById('role').value;
     let key = email.replace('.',',');
 
-    if(email=="" || password==""){ alert("Cika Email da Password"); return; }
+    if(email=="" || password==""){ alert(" Enter You Email and Password"); return; }
 
     // 1. ADMIN NA MUSAMMAN - baya bukatar database
     if(email == "admin@gmail.com" && password == "admin123" && role == "admin"){
@@ -61,12 +62,12 @@ function login(){
     db.ref('users/' + key).once('value').then(snap=>{
         let user = snap.val();
         if(user && user.password == password && user.role == role){
-            if(user.status != 'approved'){ alert("Jira Admin ya amince maka"); return; }
+            if(user.status != 'approved'){ alert("Please wait for to approved "); return; }
             localStorage.setItem('currentUser', JSON.stringify(user));
             if(role == "teacher"){ window.location.href = 'teacher_dashboard.html'; } 
             else { window.location.href = 'student_dashboard.html'; }
         } else { 
-            alert("Email ko Password ba daidai ba. Ko ba ka register ba"); 
+            alert("Your Email, role or password is incorrect!!! "); 
         }
     }).catch(err=>{
         alert("Error: " + err.message + " \nDuba Firebase Config din ka");
