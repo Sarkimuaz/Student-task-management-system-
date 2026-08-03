@@ -25,6 +25,14 @@ input, textarea{width:100%; padding:10px; margin:8px 0; border:1px solid #ddd; b
 </head>
 <body>
 <div class="header"><h2 id="pageTitle">Home</h2></div>
+  <h2>Users Waiting for Approval</h2>
+<div id="pendingList"></div>
+
+<h2>Approved Lecturers</h2>
+<div id="lectList"></div>
+
+<h2>Approved Students</h2>
+<div id="studList"></div>
 
 <div class="container">
   <!-- PAGE 1: HOME -->
@@ -141,21 +149,57 @@ function addUser(role){
     db.ref('users/' + key).set({name, email, password, role, status: 'approved'})
    .then(()=> { alert("An kara " + role + " ✅"); loadUsers(); });
 }
-
 function loadUsers(){
-    let sCount=0, tCount=0, sHtml='', tHtml='';
-    db.ref('users').on('value', snap=>{
-        snap.forEach(child=>{
-            let u = child.val();
-            if(u.role == 'student'){ sCount++; sHtml += `<div class="list-item"><span>${u.name}</span><span>${u.email}</span></div>`; }
-            if(u.role == 'teacher'){ tCount++; tHtml += `<div class="list-item"><span>${u.name}</span><span>${u.email}</span></div>`; }
-        });
-        document.getElementById('studentCount').innerText = sCount;
-        document.getElementById('teacherCount').innerText = tCount;
-        document.getElementById('studentList').innerHTML = sHtml || "Babu student";
-        document.getElementById('teacherList').innerHTML = tHtml || "Babu lecturer";
+  let sCount=0, tCount=0, pCount=0;
+  let sHtml="", tHtml="", pHtml="";
+  
+  db.ref('users').on('value', snap=>{
+    snap.forEach(child=>{
+      let u = child.val();
+      let id = child.key;
+
+      if(u.status == 'pending'){
+        pCount++;
+        pHtml += `<div class="list-item">
+          <span><b>${u.name}</b></span>
+          <span>${u.email}</span>
+          <span>${u.role}</span>
+          <button onclick="approveUser('${id}')" style="background:green; color:white">Approve</button>
+          <button onclick="deleteUser('${id}')" style="background:red; color:white">Delete</button>
+        </div>`;
+      }
+      if(u.role == 'student' && u.status == 'approved'){
+        sCount++;
+        sHtml += `<div class="list-item"><span>${u.name}</span><span>${u.email}</span><button onclick="deleteUser('${id}')">Delete</button></div>`;
+      }
+      if(u.role == 'teacher' && u.status == 'approved'){
+        tCount++;
+        tHtml += `<div class="list-item"><span>${u.name}</span><span>${u.email}</span><button onclick="deleteUser('${id}')">Delete</button></div>`;
+      }
     });
+
+    document.getElementById('studentCount').innerText = sCount;
+    document.getElementById('teacherCount').innerText = tCount;
+    document.getElementById('pendingCount').innerText = pCount; // sai ka saka wani span id="pendingCount" a HTML
+    
+    document.getElementById('studentList').innerHTML = sHtml || "Babu student";
+    document.getElementById('teacherList').innerHTML = tHtml || "Babu lecturer";
+    document.getElementById('pendingList').innerHTML = pHtml || "Babu wanda ke jira"; // sai ka saka wani div id="pendingList"
+  });
 }
+
+// SAKA WADANNAN FUNCTIONS 2 A KASA
+function approveUser(id){
+  db.ref('users/'+id).update({status:'approved'})
+  .then(()=>{ alert("An Approve!"); });
+}
+
+function deleteUser(id){
+  if(confirm("are agry ?")){
+    db.ref('users/'+id).remove()
+    .then(()=>{ alert("Deleted Successfully !"); });
+  }
+  }
 
 function addTask(){
     let id = 'task_' + Date.now();
