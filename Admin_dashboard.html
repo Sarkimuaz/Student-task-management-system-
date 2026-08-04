@@ -140,18 +140,18 @@ input, textarea, select{width:100%; padding:10px; margin:8px 0; border:1px solid
 </head>
 <body>
 <div class="container">
-  <!-- PAGE 1: HOME -->
-  <div id="page-home">
-    <!-- NA KARA WADANNAN BOXES 2 -->
-    <div style="display:flex; gap:15px; margin-bottom:20px;">
-      <div style="flex:1; background:#3498db; color:white; padding:15px; border-radius:10px; text-align:center;">
-        <h3 style="margin:0; font-size:14px;">Total Students</h3>
-        <h2 id="studentCount" style="margin:5px 0 0 0; font-size:28px;">0</h2>
-      </div>
-      <div style="flex:1; background:#8e44ad; color:white; padding:15px; border-radius:10px; text-align:center;">
-        <h3 style="margin:0; font-size:14px;">Total Lecturers</h3>
-        <h2 id="teacherCount" style="margin:5px 0 0 0; font-size:28px;">0</h2>
-      </div>
+<!-- BOXES NA COUNT -->
+<div style="display:flex; flex-direction:column; gap:15px; margin-bottom:25px;">
+  <div style="background:#3498db; color:white; padding:25px; border-radius:15px; text-align:center; box-shadow:0 4px 10px rgba(52,152,219,0.3);">
+    <h3 style="margin:0; font-size:18px; font-weight:500;">Total Students</h3>
+    <h2 id="studentCount" style="margin:10px 0 0 0; font-size:55px; font-weight:bold;">0</h2>
+  </div>
+
+  <div style="background:#8e44ad; color:white; padding:25px; border-radius:15px; text-align:center; box-shadow:0 4px 10px rgba(142,68,173,0.3);">
+    <h3 style="margin:0; font-size:18px; font-weight:500;">Total Lecturers</h3>
+    <h2 id="teacherCount" style="margin:10px 0 0 0; font-size:55px; font-weight:bold;">0</h2>
+  </div>
+    </div>
     </div>
 
     <h2>Users Waiting for Approval <span id="pendingCount">0</span></h2>
