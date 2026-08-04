@@ -1,190 +1,188 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Teacher Dashboard</title>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<title>Lecturer Dashboard</title>
 <style>
-body{font-family:'Segoe UI'; background:#f4f6f9; margin:0; padding-bottom:80px;}
-.header{background:#27ae60; color:white; padding:15px 20px; position:sticky; top:0;}
-.container{padding:20px;}
-.card{background:white; padding:15px; border-radius:12px; box-shadow:0 2px 5px rgba(0,0,0,0.1); margin-bottom:15px;}
-input, textarea, select{width:100%; padding:10px; margin:8px 0; border:1px solid #ddd; border-radius:8px; box-sizing:border-box;}
-.btn{border:none; padding:10px; border-radius:8px; font-weight:bold; cursor:pointer; color:white;}
-.btn-green{background:#27ae60; width:100%;}
-.btn-red{background:#e74c3c; padding:8px 15px; width:auto;}
-.btn-blue{background:#3498db; width:100%;}
-.hidden{display:none;}
-.bottom-nav{position:fixed; bottom:0; left:0; right:0; background:white; display:flex; justify-content:space-around; padding:10px 0; box-shadow:0 -2px 10px rgba(0,0,0,0.1);}
-.nav-item{text-align:center; color:#777; cursor:pointer; font-size:12px;}
-.nav-item .material-icons{font-size:26px; display:block;}
-.nav-item.active{color:#27ae60; font-weight:bold;}
-textarea{height:60px;}
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+  body { background: #f4f6f9; padding-bottom: 80px; }
+  .hidden { display: none; }
+  .header { background: #7c3aed; color: white; padding: 15px 20px; position: sticky; top: 0; z-index: 10; display: flex; justify-content: space-between; align-items: center; }
+  .container { padding: 20px; }
+  .section-title { font-size: 18px; font-weight: 600; margin-bottom: 15px; color: #1e293b; }
+  .form-box { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 20px; }
+  .form-group { margin-bottom: 15px; }
+  .form-group label { display: block; margin-bottom: 5px; font-weight: 600; color: #334155; }
+  .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; }
+  .btn { background: #7c3aed; color: white; padding: 12px; border: none; border-radius: 8px; width: 100%; font-weight: 600; cursor: pointer; margin-bottom: 10px; }
+  .btn-mark { background: #10b981; }
+  .btn-logout { background: #ef4444; }
+  .submission-card { background: white; border-radius: 12px; padding: 18px; margin-bottom: 15px; border-left: 5px solid #f59e0b; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+  .submission-card.marked { border-left-color: #10b981; }
+  .navbar { position: fixed; bottom: 0; left: 0; right: 0; background: white; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #e2e8f0; }
+  .nav-item { text-align: center; color: #64748b; font-size: 12px; cursor: pointer; }
+  .nav-item.active { color: #7c3aed; }
 </style>
 </head>
 <body>
-    <h1 style="text-align center">Welcome to Your Dashboard </h1>
-<div class="header"><h2 id="pageTitle">Create Task</h2></div>
 
-<div class="container">
-  <!-- A cikin PAGE 1: CREATE TASK -->
-<div id="page-create">
-    <div class="card">
-      <h3>Create New Assignment</h3>
-      <input id="courseCode" placeholder="Course Code: misali CSC101">
-      <input id="courseTitle" placeholder="Course Title: misali Intro to CS">
-      <textarea id="question" placeholder="Rubuta Tambaya/Question nan" style="height:100px;"></textarea>
-      <input type="date" id="dueDate">
-      <button class="btn btn-green" onclick="createTask()">Post Question</button>
-    </div>
-</div>
+  <div class="header">
+    <h1 id="pageTitle">Create Task</h1>
   </div>
 
-  <!-- PAGE 2: MY TASKS -->
-  <div id="page-mytasks" class="hidden">
-    <h3>My Tasks - Delete</h3>
-    <div id="myTasksList">Loading...</div>
-  </div>
-
-  <!-- PAGE 3: SUBMISSIONS -->
-  <div id="page-submissions" class="hidden">
-    <h3>Grade Submissions</h3>
-    <select id="taskSelect" onchange="loadSubmissions()"><option>Zabi Assignment...</option></select>
-    <div id="submissionList"></div>
-  </div>
-
-  <!-- PAGE 4: PROFILE -->
-  <div id="page-profile" class="hidden">
-    <div class="card" style="text-align:center;">
-      <span class="material-icons" style="font-size:60px; color:#27ae60;">school</span>
-      <h3 id="tName"></h3>
-      <p id="tEmail"></p>
-      <button class="btn btn-red" onclick="logout()">Logout</button>
+  <!-- PAGE: CREATE TASK -->
+  <div id="page-create" class="container">
+    <div class="form-box">
+      <h2 class="section-title">Create New Task</h2>
+      <div class="form-group">
+        <label>Department</label>
+        <select id="taskDept">
+          <option>Computer Science</option>
+          <option>Computer Engineering</option>
+          <option>Electrical Engineering</option>
+          <option>Civil Engineering</option>
+           <option>Medical Laboratory</option>
+            
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Task Title</label>
+        <input type="text" id="taskTitle" placeholder="E.g: JAVA Assignment 1">
+      </div>
+      <div class="form-group">
+        <label>Question / Description</label>
+        <textarea id="taskQuestion" rows="4"></textarea>
+      </div>
+      <button class="btn" onclick="createTask()">Create Task</button>
     </div>
   </div>
-</div>
 
-<!-- BOTTOM NAVIGATION - 4 BUTTONS NA LECTURER -->
-<div class="bottom-nav">
-  <div class="nav-item active" onclick="showPage('create', this)"><span class="material-icons">add_task</span>Create</div>
-  <div class="nav-item" onclick="showPage('mytasks', this)"><span class="material-icons">assignment</span>My Tasks</div>
-  <div class="nav-item" onclick="showPage('submissions', this)"><span class="material-icons">grading</span>Grade</div>
-  <div class="nav-item" onclick="showPage('profile', this)"><span class="material-icons">account_circle</span>Profile</div>
-</div>
+  <!-- PAGE: SUBMISSIONS -->
+  <div id="page-submissions" class="container hidden">
+    <h2 class="section-title">Student Submissions</h2>
+    <div id="submissionsList">Loading...</div>
+  </div>
 
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  <!-- PAGE: PROFILE -->
+  <div id="page-profile" class="container hidden">
+    <h2 class="section-title">Account Settings</h2>
+    <div class="form-box">
+      <p><strong>Name:</strong> <span id="pName"></span></p>
+      <p><strong>Email:</strong> <span id="pEmail"></span></p>
+      <hr style="margin: 15px 0;">
+      <div class="form-group"><label>New Name</label><input type="text" id="lName"></div>
+      <div class="form-group"><label>New Password</label><input type="password" id="lPassword"></div>
+      <button class="btn" onclick="updateProfile()">Update Profile</button>
+      <button class="btn btn-logout" onclick="logout()">Logout</button>
+    </div>
+  </div>
+
+  <!-- NAVBAR -->
+  <div class="navbar">
+    <div class="nav-item active" onclick="showPage('create', this)">Create</div>
+    <div class="nav-item" onclick="showPage('submissions', this)">Submissions</div>
+    <div class="nav-item" onclick="showPage('profile', this)">Profile</div>
+  </div>
+
+<!-- FIREBASE -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 <script>
-const firebaseConfig = {
-  apiKey: "AIzaSyA1fy2BvuM-mBDM5fuZID9NbkMsx-6ie0U",
-  databaseURL: "https://student-task-system-default-rtdb.firebaseio.com",
-  projectId: "student-task-system"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-let currentUser = JSON.parse(localStorage.getItem('currentUser'));
-if(!currentUser || currentUser.role != 'teacher'){ window.location.href = 'login.html'; }
-document.getElementById('tName').innerText = currentUser.name;
-document.getElementById('tEmail').innerText = currentUser.email;
+  // SAKA CONFIG DIN KA ANAN DAI-DAI DA NA STUDENT
+  const firebaseConfig = {
+    apiKey: "SAKA_NAKA_ANAN",
+    authDomain: "student-task-system.firebaseapp.com", 
+    databaseURL: "https://student-task-system-default-rtdb.firebaseio.com/",
+    projectId: "student-task-system"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+  
+  let currentUser = JSON.parse(localStorage.getItem('currentUser'));
+  if(!currentUser || currentUser.role != 'lecturer'){ window.location.href = 'login.html'; }
 
-function showPage(page, el){
+  function showPage(page, el){
     document.querySelectorAll('[id^="page-"]').forEach(p => p.classList.add('hidden'));
     document.getElementById('page-' + page).classList.remove('hidden');
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    el.classList.add('active');
+    if(el) el.classList.add('active');
     document.getElementById('pageTitle').innerText = page.charAt(0).toUpperCase() + page.slice(1);
-    if(page == 'mytasks'){ loadMyTasks(); }
-    if(page == 'submissions'){ loadTaskDropdown(); }
-}
-function logout(){ localStorage.removeItem('currentUser'); window.location.href = 'login.html'; }
 
-// 1. CREATE TASK - NA LECTURER
-function createTask(){
-    let code = document.getElementById('courseCode').value;
-    let title = document.getElementById('courseTitle').value;
-    let question = document.getElementById('question').value; // Canza description zuwa question
-    let due = document.getElementById('dueDate').value;
-    if(code=="" || title=="" || question=="" || due==""){ alert("Cika duka"); return; }
-    
-    db.ref('tasks').push({
-        courseCode: code, 
-        courseTitle: title, 
-        question: question,  // MAHIMMI: Muna ajiye question yanzu
-        dueDate: due, 
-        createdBy: currentUser.email
-    }).then(()=> {
-        alert("An post Question ✅");
-        document.getElementById('courseCode').value = "";
-        document.getElementById('courseTitle').value = "";
-        document.getElementById('question').value = "";
-        document.getElementById('dueDate').value = "";
-    });
-}
-
-// 2. DELETE TASK - NA LECTURER KAWAI
-function loadMyTasks(){
-    db.ref('tasks').on('value', snap=>{
-        let html = '';
-        snap.forEach(child=>{
-            let t = child.val();
-            // Nuna kawai task din da wannan lecturer din ya kirkira
-            if(t.createdBy == currentUser.email){
-                html += `<div class="card">
-                    <h3>${t.courseCode} - ${t.courseTitle}</h3>
-                    <p>${t.description}</p>
-                    <p>Due: ${t.dueDate}</p>
-                    <button class="btn btn-red" onclick="deleteTask('${child.key}')">Delete Task</button>
-                </div>`;
-            }
-        });
-        document.getElementById('myTasksList').innerHTML = html || "Ba ka kirkiro task ba tukuna";
-    });
-}
-function deleteTask(taskId){
-    if(confirm("Ka tabbata kana son goge wannan task?")){
-        db.ref('tasks/' + taskId).remove();
-        db.ref('submissions/' + taskId).remove();
-        alert("An goge Task");
+    if(page == 'profile'){
+      document.getElementById('pName').innerText = currentUser.name;
+      document.getElementById('pEmail').innerText = currentUser.email;
+      document.getElementById('lName').value = currentUser.name;
     }
-}
+    if(page == 'submissions'){ loadSubmissions(); }
+  }
 
-// 3. GRADE SUBMISSIONS - KAMAR DA
-function loadTaskDropdown(){
-    db.ref('tasks').once('value', snap=>{
-        let options = '<option>Zabi Assignment...</option>';
-        snap.forEach(child=>{
-            if(child.val().createdBy == currentUser.email){
-                options += `<option value="${child.key}">${child.val().courseCode}</option>`;
-            }
+  function logout(){ localStorage.removeItem('currentUser'); window.location.href = 'index.html'; }
+
+  function createTask(){
+    let title = document.getElementById('taskTitle').value;
+    let question = document.getElementById('taskQuestion').value;
+    let dept = document.getElementById('taskDept').value;
+    if(title == "" || question == ""){ alert("Please fill all the fields"); return; }
+    
+    let newTaskRef = db.ref('tasks').push(); // push zai samar da unique key
+    newTaskRef.set({
+      title: title,
+      question: question,
+      department: dept,
+      createdBy: currentUser.name,
+      createdAt: Date.now()
+    }).then(()=>{
+      alert("Task Created Successfully ✓");
+      document.getElementById('taskTitle').value = "";
+      document.getElementById('taskQuestion').value = "";
+    }).catch(err => alert("DB Error: " + err.message));
+  }
+
+  function loadSubmissions(){
+    db.ref('submissions').once('value', snap=>{
+      let html = '';
+      snap.forEach(taskSnap=>{
+        let taskId = taskSnap.key;
+        taskSnap.forEach(studentSnap=>{
+          let sub = studentSnap.val();
+          let studentEmailKey = studentSnap.key;
+          html += `<div class="submission-card ${sub.status}">
+            <h3>${taskId}</h3>
+            <p><b>Student:</b> ${sub.name} - ${sub.department}</p>
+            <p><b>Answer:</b> ${sub.answer}</p>
+            <p><b>Status:</b> ${sub.status}</p>
+            <textarea id="feedback_${studentEmailKey}" placeholder="Write feedback...">${sub.feedback || ''}</textarea>
+            <button class="btn btn-mark" onclick="markTask('${taskId}', '${studentEmailKey}')">Mark & Send Feedback</button>
+          </div>`;
         });
-        document.getElementById('taskSelect').innerHTML = options;
+      });
+      document.getElementById('submissionsList').innerHTML = html || "No submissions yet";
     });
-}
-function loadSubmissions(){
-    let taskId = document.getElementById('taskSelect').value;
-    if(taskId == "Zabi Assignment...") return;
-    let html = '<h3>Answers from Students:</h3>';
-    db.ref('submissions/' + taskId).once('value', snap=>{
-        snap.forEach(child=>{
-            let sub = child.val();
-            html += `<div class="card">
-                <p><b>${sub.name}</b></p>
-                <p><b>Answer:</b></p>
-                <div style="background:#ecf0f1; padding:10px; border-radius:8px;">${sub.answer}</div>
-                <input type="number" id="grade_${child.key}" placeholder="Grade 0-100" value="${sub.grade || ''}">
-                <textarea id="feedback_${child.key}" placeholder="Feedback">${sub.feedback || ''}</textarea>
-                <button class="btn-blue" onclick="saveGrade('${taskId}', '${child.key}')">Save Grade</button>
-            </div>`;
-        });
-        document.getElementById('submissionList').innerHTML = html;
+  }
+
+  function markTask(taskId, studentEmailKey){
+    let feedback = document.getElementById('feedback_' + studentEmailKey).value;
+    db.ref('submissions/' + taskId + '/' + studentEmailKey).update({
+      status: "marked",
+      feedback: feedback
+    }).then(()=>{
+      alert("Marked Successfully!");
+      loadSubmissions();
     });
-}
-function saveGrade(taskId, studentKey){
-    let grade = document.getElementById('grade_' + studentKey).value;
-    let feedback = document.getElementById('feedback_' + studentKey).value;
-    db.ref('submissions/' + taskId + '/' + studentKey).update({grade: grade, feedback: feedback})
-    .then(()=> alert("An ajiye ✅"));
-}
+  }
+
+  function updateProfile(){
+    let newName = document.getElementById('lName').value;
+    let studentEmail = currentUser.email.replace(/\./g, ',');
+    db.ref('lecturers/' + studentEmail).update({ name: newName }).then(()=>{
+      currentUser.name = newName;
+      localStorage.setItem('currentUser', JSON.stringify(currentUser));
+      alert("Profile Updated!");
+    });
+  }
+
+  showPage('create');
 </script>
 </body>
-</html>
+ </html>
