@@ -52,6 +52,7 @@
   <div id="page-home" class="container">
     <div class="form-box">
       <h2 class="section-title">Submit Task</h2>
+      <p style="margin-bottom:10px; color:#64748b">Department: <b id="studentDept"></b></p>
       <div class="form-group">
         <label>Choose Assignment</label>
         <select id="taskId" onchange="loadQuestion()"><option>Loading tasks...</option></select>
@@ -77,12 +78,19 @@
     <div class="form-box">
       <p><strong>Name:</strong> <span id="pName"></span></p>
       <p><strong>Email:</strong> <span id="pEmail"></span></p>
+      <p><strong>Department:</strong> <span id="pDept"></span></p>
       <hr style="margin: 15px 0;">
       <div class="form-group"><label>New Name</label><input type="text" id="sName"></div>
       <div class="form-group"><label>New Password</label><input type="password" id="sPassword"></div>
       <button class="btn" onclick="updateProfile()">Update Profile</button>
       <button class="btn btn-logout" onclick="logout()">Logout</button>
     </div>
+  </div>
+
+  <!-- PAGE: NOTIFICATIONS -->
+  <div id="page-notifications" class="container hidden">
+    <h2 class="section-title">Notifications</h2>
+    <div id="notifList">No notifications</div>
   </div>
 
   <!-- NAVBAR -->
@@ -97,22 +105,23 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 <script>
   // 1. SAKA CONFIG DIN KA ANAN
-  const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_AUTH_DOMAIN",
-    databaseURL: "YOUR_DATABASE_URL",
-    projectId: "YOUR_PROJECT_ID"
-  };
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.database();
-  
-  // 2. GYARA: Duba idan user yana cikin localStorage
+const firebaseConfig = {
+  apiKey: "AIzaSyA1fy2BvuM-mB...", // Copy daga screenshot
+  authDomain: "student-task-something.firebaseapp.com", // Cika shi
+  databaseURL: "https://student-task-system-default-rtdb.firebaseio.com/", // Wannan kana dashi
+  projectId: "student-task-sy...", // Cika shi
+  storageBucket: "student-tas...", // Cika shi
+  messagingSenderId: "1678603...", // Cika shi
+  appId: "1:167860350961:web:...", // Cika shi
+  measurementId: "G-98M6ZGPNX..." // Cika shi
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
   let currentUser = JSON.parse(localStorage.getItem('currentUser'));
-  if(!currentUser){
-    alert("Please login first");
-    window.location.href = 'index.html';
-  }
-  let studentKey = currentUser.key; // Wannan shine key din ka a DB
+  if(!currentUser){ window.location.href = 'login.html'; }
+  
+  let studentEmail = currentUser.email.replace(/\./g, ',');
+  let studentDept = currentUser.department; // MU DAUKO DEPARTMENT
 
   function showPage(page, el){
     document.querySelectorAll('[id^="page-"]').forEach(p => p.classList.add('hidden'));
@@ -124,10 +133,14 @@
     if(page == 'profile'){
       document.getElementById('pName').innerText = currentUser.name;
       document.getElementById('pEmail').innerText = currentUser.email;
+      document.getElementById('pDept').innerText = currentUser.department;
       document.getElementById('sName').value = currentUser.name;
     }
     if(page == 'tasks'){ loadMyTasksStatus(); }
-    if(page == 'home'){ loadTaskDropDown(); }
+    if(page == 'home'){ 
+      document.getElementById('studentDept').innerText = studentDept;
+      loadTaskDropDown(); 
+    }
   }
 
   function logout(){ 
@@ -135,11 +148,15 @@
     window.location.href = 'index.html'; 
   }
 
+  // 2. GYARA: YANZU YANA TACE TA DEPARTMENT
   function loadTaskDropDown(){
     db.ref('tasks').once('value', snap=>{
       let options = '<option>Choose your Assignment...</option>';
       snap.forEach(child=>{ 
-        options += `<option value="${child.key}">${child.val().title}</option>` 
+        let task = child.val();
+        if(task.department === studentDept){ // TACE NAN
+          options += `<option value="${child.key}">${task.title}</option>` 
+        }
       });
       document.getElementById('taskId').innerHTML = options;
     });
@@ -157,15 +174,15 @@
     });
   }
 
-  // 3. GYARA: SUBMIT TASK YANZU ZAIYI AIKI
   function submitTask(){
     let taskId = document.getElementById('taskId').value;
     let answer = document.getElementById('answer').value;
     if(taskId=='Choose your Assignment...' || answer==""){ alert("Please select assignment and write answer"); return; }
     
-    db.ref('submissions/' + taskId + '/' + studentKey).set({
+    db.ref('submissions/' + taskId + '/' + studentEmail).set({
       answer: answer, 
       name: currentUser.name, 
+      department: studentDept,
       time: Date.now(), 
       status: "pending",
       feedback: ""
@@ -173,19 +190,17 @@
       alert("Submitted Successfully ✓");
       document.getElementById('answer').value = "";
       loadMyTasksStatus();
-      showPage('tasks'); // Kai shi kai tsaye zuwa Tasks
-    }).catch(err => alert("Error: " + err.message));
+      showPage('tasks');
+    }).catch(err => alert("DB Error: " + err.message));
   }
 
-  // 4. GYARA: LOAD TASKS YANZU ZAI NUNA
   function loadMyTasksStatus(){
-    document.getElementById('myTasksList').innerHTML = "Loading...";
     db.ref('submissions').once('value', snap=>{
       let html = '';
       snap.forEach(taskSnap=>{
         let taskId = taskSnap.key;
-        if(taskSnap.hasChild(studentKey)){
-          let sub = taskSnap.child(studentKey).val();
+        if(taskSnap.hasChild(studentEmail)){
+          let sub = taskSnap.child(studentEmail).val();
           html += `<div class="task-card ${sub.status}">
             <div class="task-header"><h3>${taskId}</h3><span class="status ${sub.status}">${sub.status}</span></div>
             <p><b>Your Answer:</b> ${sub.answer}</p>
@@ -193,30 +208,20 @@
           </div>`;
         }
       });
-      document.getElementById('myTasksList').innerHTML = html || "You have not submitted any task yet";
+      document.getElementById('myTasksList').innerHTML = html || "No submissions yet";
     });
   }
-
-  // 5. GYARA: UPDATE PROFILE YANZU ZAIYI AIKI
+  
   function updateProfile(){
     let newName = document.getElementById('sName').value;
-    let newPass = document.getElementById('sPassword').value;
-    if(newName == ""){ alert("Name cannot be empty"); return; }
-
-    // Update a Database
-    db.ref('students/' + studentKey).update({ name: newName }).then(()=>{
-      // Update localStorage
+    db.ref('students/' + studentEmail).update({ name: newName }).then(()=>{
       currentUser.name = newName;
       localStorage.setItem('currentUser', JSON.stringify(currentUser));
-      alert("Profile Updated Successfully!");
-      showPage('profile');
-    }).catch(err => alert("Error: " + err.message));
-    
-    // NOTE: Canza password na gaskiya yana bukatar Firebase Auth. Wannan yana canza name kawai a DB
+      alert("Profile Updated!");
+    }).catch(err => alert("DB Error: " + err.message));
   }
 
-  // Load home on start
   showPage('home');
 </script>
 </body>
-</html>
+ </html>
