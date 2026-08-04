@@ -5,14 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 <style>
-body{font-family:'Segoe UI'; background:#f4f6f9; margin:0; padding-bottom:100px;} /* NA KARA ZUWA 100px */
+body{font-family:'Segoe UI'; background:#f4f6f9; margin:0; padding-bottom:100px;}
 .card{background:white; padding:20px; border-radius:12px; box-shadow:0 2px 5px rgba(0,0,0,0.1); margin-bottom:20px;}
 .stats{display:grid; grid-template-columns:1fr 1fr; gap:15px;}
 .stat-box{background:#8e44ad; color:white; padding:20px; border-radius:12px; text-align:center;}
 .stat-box h1{margin:0; font-size:40px;}
 .btn-purple{background:#8e44ad; color:white; border:none; padding:12px; border-radius:8px; width:100%; font-weight:bold; cursor:pointer; margin:5px 0;}
 .btn-green{background:#27ae60; color:white; border:none; padding:5px 10px; border-radius:5px;}
-input, textarea, select{width:100%; padding:10px; margin:8px 0; border:1px solid #ddd; border-radius:8px; box-sizing:border-box;} /* na kara select */
+input, textarea, select{width:100%; padding:10px; margin:8px 0; border:1px solid #ddd; border-radius:8px; box-sizing:border-box;}
 .hidden{display:none;}
 .bottom-nav{position:fixed; bottom:0; left:0; right:0; background:white; display:flex; justify-content:space-around; padding:10px 0; box-shadow:0 -2px 10px rgba(0,0,0,0.1);}
 .nav-item{text-align:center; color:#777; cursor:pointer; font-size:12px;}
@@ -37,125 +37,41 @@ input, textarea, select{width:100%; padding:10px; margin:8px 0; border:1px solid
 }
 .list-item span { flex: 1; font-size: 15px; }
 .list-item span b { color: #2c3e50; }
+.list-item button {padding: 6px 12px; border: none; border-radius: 6px; cursor:pointer;}
+.list-item small{background:#ecf0f1; padding:2px 8px; border-radius:5px; color:#2c3e50; font-size:12px;}
 
-/* BUTTONS */
-.list-item button {
-  padding: 6px 12px;
-  border: none;
-  border-radius: 6px; /* NA KARA ; NAN */
-  cursor:pointer;
-}
-.list-item small{
-  background:#ecf0f1;
-  padding:2px 8px;
-  border-radius:5px;
-  color:#2c3e50;
-  font-size:12px;
-}
 /* BOX DIN PROFILE */
-.profile-box{
-  background:white;
-  padding:25px;
-  border-radius:15px;
-  max-width:450px;
-  margin:20px auto;
-  box-shadow:0 4px 15px rgba(0,0,0,0.1);
-  text-align:center;
-}
-
-/* HOTO */
-.profile-pic-wrap{
-  position:relative;
-  display:inline-block;
-  margin-bottom:15px;
-}
-#profilePic{
-  width:120px;
-  height:120px;
-  border-radius:50%;
-  border:4px solid #8e44ad;
-  object-fit:cover;
-}
-#picUpload{
-  margin-top:10px;
-  font-size:13px;
-  color:#555;
-}
-
-/* BAYANIN USER */
-.user-info h3{
-  margin:5px 0;
-  color:#2c3e50;
-}
-.user-info p{
-  margin:3px 0;
-  color:#7f8c8d;
-  font-size:14px;
-}
-.user-info small{
-  background:#ecf0f1;
-  padding:3px 10px;
-  border-radius:20px;
-  color:#8e44ad;
-  font-weight:bold;
-}
-
-/* FORM NA UPDATE */
-.update-form{
-  margin-top:20px;
-  text-align:left;
-}
-.update-form label{
-  font-weight:bold;
-  color:#2c3e50;
-  font-size:14px;
-  display:block;
-  margin-top:10px;
-}
-.update-form input{
-  width:100%;
-  padding:12px;
-  margin:5px 0 10px 0;
-  border:1px solid #ddd;
-  border-radius:8px;
-  box-sizing:border-box;
-}
-.update-form button{
-  width:100%;
-  padding:12px;
-  background:#27ae60;
-  color:white;
-  border:none;
-  border-radius:8px;
-  font-weight:bold;
-  cursor:pointer;
-  margin-top:10px;
-}
-.update-form button:hover{
-  background:#229954;
-}
+.profile-box{background:white; padding:25px; border-radius:15px; max-width:450px; margin:20px auto; box-shadow:0 4px 15px rgba(0,0,0,0.1); text-align:center;}
+.user-info h3{margin:5px 0; color:#2c3e50;}
+.user-info p{margin:3px 0; color:#7f8c8d; font-size:14px;}
+.user-info small{background:#ecf0f1; padding:3px 10px; border-radius:20px; color:#8e44ad; font-weight:bold;}
+.update-form{margin-top:20px; text-align:left;}
+.update-form label{font-weight:bold; color:#2c3e50; font-size:14px; display:block; margin-top:10px;}
+.update-form input{width:100%; padding:12px; margin:5px 0 10px 0; border:1px solid #ddd; border-radius:8px; box-sizing:border-box;}
+.update-form button{width:100%; padding:12px; background:#27ae60; color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer; margin-top:10px;}
+.update-form button:hover{background:#229954;}
 </style>
 </head>
 <body>
 <div class="container">
-<!-- BOXES NA COUNT -->
-<div style="display:flex; flex-direction:column; gap:15px; margin-bottom:25px;">
-  <div style="background:#3498db; color:white; padding:25px; border-radius:15px; text-align:center; box-shadow:0 4px 10px rgba(52,152,219,0.3);">
-    <h3 style="margin:0; font-size:18px; font-weight:500;">Total Students</h3>
-    <h2 id="studentCount" style="margin:10px 0 0 0; font-size:55px; font-weight:bold;">0</h2>
+
+<!-- PAGE 1: HOME -->
+<div id="page-home">
+  <!-- BOXES NA COUNT -->
+  <div style="display:flex; flex-direction:column; gap:15px; margin-bottom:25px;">
+    <div style="background:#3498db; color:white; padding:25px; border-radius:15px; text-align:center; box-shadow:0 4px 10px rgba(52,152,219,0.3);">
+      <h3 style="margin:0; font-size:18px; font-weight:500;">Total Students</h3>
+      <h2 id="studentCount" style="margin:10px 0 0 0; font-size:55px; font-weight:bold;">0</h2>
+    </div>
+    <div style="background:#8e44ad; color:white; padding:25px; border-radius:15px; text-align:center; box-shadow:0 4px 10px rgba(142,68,173,0.3);">
+      <h3 style="margin:0; font-size:18px; font-weight:500;">Total Lecturers</h3>
+      <h2 id="teacherCount" style="margin:10px 0 0 0; font-size:55px; font-weight:bold;">0</h2>
+    </div>
   </div>
 
-  <div style="background:#8e44ad; color:white; padding:25px; border-radius:15px; text-align:center; box-shadow:0 4px 10px rgba(142,68,173,0.3);">
-    <h3 style="margin:0; font-size:18px; font-weight:500;">Total Lecturers</h3>
-    <h2 id="teacherCount" style="margin:10px 0 0 0; font-size:55px; font-weight:bold;">0</h2>
-  </div>
-    </div>
-    </div>
-
-    <h2>Users Waiting for Approval <span id="pendingCount">0</span></h2>
-    <div id="pendingList"></div>
-    <hr>
-  </div>
+  <h2>Users Waiting for Approval <span id="pendingCount">0</span></h2>
+  <div id="pendingList"></div>
+</div>
 
   <!-- PAGE 2: STUDENTS -->
   <div id="page-students" class="hidden">
@@ -165,7 +81,7 @@ input, textarea, select{width:100%; padding:10px; margin:8px 0; border:1px solid
       <input id="sEmail" placeholder="Email na Student">
       <input id="sPass" placeholder="Password">
       <label>Department</label>
-      <select id="sDept"> <!-- NA CANZA ID DIN ZUWA sDept -->
+      <select id="sDept">
         <option value="">-- Choose Department --</option>
         <option value="Computer Science">Computer Science</option>
         <option value="Accounting">Accounting</option>
@@ -191,7 +107,7 @@ input, textarea, select{width:100%; padding:10px; margin:8px 0; border:1px solid
       <input id="tEmail" placeholder="Email of Lecturer">
       <input id="tPass" placeholder="Password">
       <label>Department</label>
-      <select id="tDept"> <!-- NA CANZA ID DIN ZUWA tDept -->
+      <select id="tDept">
         <option value="">-- Choose Department --</option>
         <option value="Computer Science">Computer Science</option>
         <option value="Accounting">Accounting</option>
@@ -209,24 +125,9 @@ input, textarea, select{width:100%; padding:10px; margin:8px 0; border:1px solid
     </div>
   </div>
 
-  <!-- PAGE 4: ASSIGNMENTS -->
-  <div id="page-assignments" class="hidden">
-    <div class="card"><h3>Post New Assignment</h3>
-      <input id="courseCode" placeholder="Course Code">
-      <input id="courseTitle" placeholder="Course Title">
-      <textarea id="desc" placeholder="Bayanin Assignment"></textarea>
-      <input type="date" id="dueDate">
-      <button class="btn-purple" style="background:#e67e22;" onclick="addTask()">Post Assignment</button>
-    </div>
-  </div>
-
-  <!-- PAGE 5: PROFILE -->
+  <!-- PAGE 4: PROFILE - NA CIRE HOTO -->
   <div id="page-profile" class="hidden">
   <div class="profile-box">
-    <div class="profile-pic-wrap">
-      <img id="profilePic" src="https://i.imgur.com/8Km9tLL.png"> <!-- NA CANZA ZUWA LINK -->
-      <input type="file" id="picUpload" accept="image/*">
-    </div>
     <div class="user-info">
       <h3 id="userName">Admin</h3>
       <p id="userEmail">admin@gmail.com</p>
@@ -243,10 +144,9 @@ input, textarea, select{width:100%; padding:10px; margin:8px 0; border:1px solid
   </div>
   </div>
     
-  </div>
 </div>
 
-<!-- BOTTOM NAVIGATION -->
+<!-- BOTTOM NAVIGATION - NA MAYAR DA 4 -->
 <div class="bottom-nav">
   <div class="nav-item active" onclick="showPage('home', this)">
     <span class="material-icons">home</span>Home
@@ -279,7 +179,7 @@ function showPage(page, el){
     document.getElementById('page-' + page).classList.remove('hidden');
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
     if(el) el.classList.add('active');
-    loadUsers(); // Na cire pageTitle saboda babu shi
+    loadUsers(); 
 }
 
 function logout(){ localStorage.removeItem('currentUser'); window.location.href = 'Index.html'; }
@@ -288,9 +188,9 @@ function addUser(role){
     let name = document.getElementById(role.charAt(0)+'Name').value;
     let email = document.getElementById(role.charAt(0)+'Email').value;
     let password = document.getElementById(role.charAt(0)+'Pass').value;
-    let dept = document.getElementById(role.charAt(0)+'Dept').value; // NA GYARA NAN
-    if(name=="" || email=="" || password=="" || dept==""){ alert("Cika dukkan filaye"); return; } // na kara dept
-    let key = email.replace(/\./g,'_'); // na daidaita shi ya zama _
+    let dept = document.getElementById(role.charAt(0)+'Dept').value;
+    if(name=="" || email=="" || password=="" || dept==""){ alert("Cika dukkan filaye"); return; }
+    let key = email.replace(/\./g,'_');
     db.ref('users/' + key).set({name, email, password,dept, role, status: 'approved'})
   .then(()=> { alert(" Added " + role + " ✅"); loadUsers(); });
 }
@@ -342,18 +242,15 @@ function loadUsers(){
 }
 
 function approveUser(id){
-  db.ref('users/'+id).update({status:'approved'})
- .then(()=>{ alert("An Approve!"); });
+  db.ref('users/'+id).update({status:'approved'}).then(()=>{ alert("An Approve!"); });
 }
-
 function deleteUser(id){
   if(confirm("Tabbatar kana son gogewa?")){
-    db.ref('users/'+id).remove()
-   .then(()=>{ alert("An Gogewa!"); });
+    db.ref('users/'+id).remove().then(()=>{ alert("An Gogewa!"); });
   }
 }
 
-// NUNA BAYANIN ADMIN LOKACIN DA PAGE TA BUƊE
+// NUNA BAYANIN ADMIN
 window.onload = function(){
   let email = localStorage.getItem('userEmail');
   if(email){
@@ -364,7 +261,6 @@ window.onload = function(){
         document.getElementById('userName').innerText = u.name;
         document.getElementById('userEmail').innerText = u.email;
         document.getElementById('userDept').innerText = u.dept;
-        if(u.photo) document.getElementById('profilePic').src = u.photo;
       }
     });
   }
@@ -379,39 +275,8 @@ function updateProfile(){
   let updates = {};
   if(newName!= "") updates.name = newName;
   if(newPass!= "") updates.password = newPass;
-  db.ref('users/' + key).update(updates)
- .then(()=>{ alert("Profile Updated ✅"); location.reload(); });
+  db.ref('users/' + key).update(updates).then(()=>{ alert("Profile Updated ✅"); location.reload(); });
 }
-
-// NA HOTO - VERSION 1
-document.getElementById('picUpload').onchange = function(e){
-  let file = e.target.files[0];
-  if(!file) return;
-  let email = localStorage.getItem('userEmail');
-  if(!email){ alert(" You Must log in"); return; }
-  let key = email.replace(/\./g, '_');
-
-  let reader = new FileReader();
-  reader.onload = function(){
-    let pic = reader.result;
-    document.getElementById('profilePic').src = pic;
-    db.ref('users/' + key).update({photo: pic});
-    alert("Profile Picture Updated ✅");
-  }
-  reader.readAsDataURL(file);
-  }
-
-
-function addTask(){
-    let id = 'task_' + Date.now();
-    db.ref('tasks/' + id).set({
-        courseCode: document.getElementById('courseCode').value,
-        courseTitle: document.getElementById('courseTitle').value,
-        description: document.getElementById('desc').value,
-        dueDate: document.getElementById('dueDate').value
-    }).then(()=> alert(" Assignment Created✅"));
-}
-
-loadUsers();
 </script>
-</body>  </html>
+</body>
+</html>
