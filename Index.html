@@ -41,39 +41,48 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
-
 function login(){
     let email = document.getElementById('email').value;
     let password = document.getElementById('password').value;
     let role = document.getElementById('role').value;
-    let key = email.replace(/\./g,'_'); // NA GYARA NAN: DAGA ',' ZUWA '_'
+    
+    let key1 = email.replace(/\./g,'_'); // Version 1 da muke amfani da shi yanzu
+    let key2 = email.replace(/\./g,','); // Version 2 tsoho
 
     if(email=="" || password==""){ alert(" Enter You Email and Password"); return; }
 
-    // 1. ADMIN NA MUSAMMAN - baya bukatar database
+    // 1. ADMIN NA MUSAMMAN
     if(email == "admin@gmail.com" && password == "admin123" && role == "admin"){
-        localStorage.setItem('currentUser', JSON.stringify({email: email, role: role, name: user.name, photo: user.photo}));
-localStorage.setItem('userEmail', email);
-        window.location.href = 'Admin_dashboard.html'; // NA GYARA A ZUWA BABBAN A
+        localStorage.setItem('currentUser', JSON.stringify({email, role, name:"Admin"}));
+        localStorage.setItem('userEmail', email);
+        window.location.href = 'Admin_dashboard.html';
         return;
     }
 
-    // 2. STUDENT / TEACHER
-    db.ref('users/' + key).once('value').then(snap=>{
+    // 2. STUDENT / TEACHER - ZAMU DUBA KEY 2 DOMIN TABBATAR
+    db.ref('users/' + key1).once('value').then(snap=>{
+        let user = snap.val();
+        
+        // Idan bai same shi da _ ba, mu gwada da ,
+        if(!user){
+            return db.ref('users/' + key2).once('value');
+        }
+        return snap;
+    }).then(snap=>{
         let user = snap.val();
         if(user && user.password == password && user.role == role){
             if(user.status != 'approved'){ alert("Please wait for admin to approved "); return; }
-            localStorage.setItem('currentUser', JSON.stringify(user));
-            localStorage.setItem('userEmail', email); // NA KARA WANNAN DON PROFILE YA YI AIKI
-            if(role == "teacher"){ window.location.href = 'Teacher_dashboard.html'; } // NA GYARA BABBAN T
-            else { window.location.href = 'Student_dashboard.html'; } // NA GYARA BABBAN S
+            localStorage.setItem('currentUser', JSON.stringify({email: email, role: role, name: user.name, photo: user.photo}));
+            localStorage.setItem('userEmail', email);
+            if(role == "teacher"){ window.location.href = 'Teacher_dashboard.html'; } 
+            else { window.location.href = 'Student_dashboard.html'; }
         } else { 
             alert("Your Email, role or password is incorrect!!! "); 
         }
     }).catch(err=>{
-        alert("Error: " + err.message + " \nDuba Firebase Config din ka");
+        alert("Error: " + err.message);
     });
-}
+    }
 </script>
 </body>
 </html>
