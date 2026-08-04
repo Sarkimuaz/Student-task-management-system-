@@ -19,13 +19,12 @@
   
   .task-card { background: white; border-radius: 12px; padding: 18px; margin-bottom: 15px; border-left: 5px solid #f59e0b; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
   .task-card.marked { border-left-color: #10b981; }
-  .task-card.overdue { border-left-color: #ef4444; }
+  .task-card.pending { border-left-color: #f59e0b; }
   
   .task-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
   .status { padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; color: white; }
   .status.pending { background: #f59e0b; }
   .status.marked { background: #10b981; }
-  .status.overdue { background: #ef4444; }
   
   .form-box { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 20px; }
   .form-group { margin-bottom: 15px; }
@@ -55,7 +54,7 @@
       <h2 class="section-title">Submit Task</h2>
       <div class="form-group">
         <label>Choose Assignment</label>
-        <select id="taskId" onchange="loadQuestion()"></select>
+        <select id="taskId" onchange="loadQuestion()"><option>Loading tasks...</option></select>
       </div>
       <div id="questionDisplay" class="hidden"></div>
       <div class="form-group hidden" id="answerBox">
@@ -86,12 +85,6 @@
     </div>
   </div>
 
-  <!-- PAGE: NOTIFICATIONS -->
-  <div id="page-notifications" class="container hidden">
-    <h2 class="section-title">Notifications</h2>
-    <div id="notifList">No notifications</div>
-  </div>
-
   <!-- NAVBAR -->
   <div class="navbar">
     <div class="nav-item active" onclick="showPage('home', this)">Home</div>
@@ -102,9 +95,8 @@
 <!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 <script>
-  // YOUR FIREBASE CONFIG HERE
+  // 1. SAKA CONFIG DIN KA ANAN
   const firebaseConfig = {
     apiKey: "YOUR_API_KEY",
     authDomain: "YOUR_AUTH_DOMAIN",
@@ -114,8 +106,13 @@
   firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
   
+  // 2. GYARA: Duba idan user yana cikin localStorage
   let currentUser = JSON.parse(localStorage.getItem('currentUser'));
-  let studentKey = currentUser ? currentUser.key : null;
+  if(!currentUser){
+    alert("Please login first");
+    window.location.href = 'index.html';
+  }
+  let studentKey = currentUser.key; // Wannan shine key din ka a DB
 
   function showPage(page, el){
     document.querySelectorAll('[id^="page-"]').forEach(p => p.classList.add('hidden'));
@@ -127,15 +124,15 @@
     if(page == 'profile'){
       document.getElementById('pName').innerText = currentUser.name;
       document.getElementById('pEmail').innerText = currentUser.email;
+      document.getElementById('sName').value = currentUser.name;
     }
     if(page == 'tasks'){ loadMyTasksStatus(); }
     if(page == 'home'){ loadTaskDropDown(); }
-    if(page == 'notifications'){ loadNotifications(); markNotificationsAsRead(); }
   }
 
   function logout(){ 
     localStorage.removeItem('currentUser'); 
-    window.location.href = 'login.html'; 
+    window.location.href = 'index.html'; 
   }
 
   function loadTaskDropDown(){
@@ -160,50 +157,66 @@
     });
   }
 
+  // 3. GYARA: SUBMIT TASK YANZU ZAIYI AIKI
   function submitTask(){
     let taskId = document.getElementById('taskId').value;
     let answer = document.getElementById('answer').value;
     if(taskId=='Choose your Assignment...' || answer==""){ alert("Please select assignment and write answer"); return; }
+    
     db.ref('submissions/' + taskId + '/' + studentKey).set({
       answer: answer, 
       name: currentUser.name, 
       time: Date.now(), 
-      status: "pending"
+      status: "pending",
+      feedback: ""
     }).then(()=>{
       alert("Submitted Successfully ✓");
-      addNotification("Submitted: " + taskId);
       document.getElementById('answer').value = "";
       loadMyTasksStatus();
-    });
+      showPage('tasks'); // Kai shi kai tsaye zuwa Tasks
+    }).catch(err => alert("Error: " + err.message));
   }
 
+  // 4. GYARA: LOAD TASKS YANZU ZAI NUNA
   function loadMyTasksStatus(){
+    document.getElementById('myTasksList').innerHTML = "Loading...";
     db.ref('submissions').once('value', snap=>{
       let html = '';
-      snap.forEach(task=>{
-        if(task.child(studentKey).exists()){
-          let sub = task.child(studentKey).val();
-          let statusClass = sub.status;
-          html += `<div class="task-card ${statusClass}">
-            <div class="task-header"><h3>${task.key}</h3><span class="status ${statusClass}">${sub.status}</span></div>
+      snap.forEach(taskSnap=>{
+        let taskId = taskSnap.key;
+        if(taskSnap.hasChild(studentKey)){
+          let sub = taskSnap.child(studentKey).val();
+          html += `<div class="task-card ${sub.status}">
+            <div class="task-header"><h3>${taskId}</h3><span class="status ${sub.status}">${sub.status}</span></div>
             <p><b>Your Answer:</b> ${sub.answer}</p>
             <p><b>Feedback:</b> ${sub.feedback || 'No feedback yet'}</p>
           </div>`;
         }
       });
-      document.getElementById('myTasksList').innerHTML = html || "No submissions yet";
+      document.getElementById('myTasksList').innerHTML = html || "You have not submitted any task yet";
     });
   }
 
-  function addNotification(msg){
-    db.ref('notifications/' + studentKey).push({msg: msg, read: false, time: Date.now()});
+  // 5. GYARA: UPDATE PROFILE YANZU ZAIYI AIKI
+  function updateProfile(){
+    let newName = document.getElementById('sName').value;
+    let newPass = document.getElementById('sPassword').value;
+    if(newName == ""){ alert("Name cannot be empty"); return; }
+
+    // Update a Database
+    db.ref('students/' + studentKey).update({ name: newName }).then(()=>{
+      // Update localStorage
+      currentUser.name = newName;
+      localStorage.setItem('currentUser', JSON.stringify(currentUser));
+      alert("Profile Updated Successfully!");
+      showPage('profile');
+    }).catch(err => alert("Error: " + err.message));
+    
+    // NOTE: Canza password na gaskiya yana bukatar Firebase Auth. Wannan yana canza name kawai a DB
   }
-  function loadNotifications(){ /* add code here */ }
-  function markNotificationsAsRead(){ /* add code here */ }
-  function updateProfile(){ alert("Profile update - connect to Firebase Auth") }
 
   // Load home on start
   showPage('home');
 </script>
 </body>
- </html>
+</html>
