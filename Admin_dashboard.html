@@ -61,6 +61,88 @@ input, textarea{width:100%; padding:10px; margin:8px 0; border:1px solid #ddd; b
   color:#2c3e50;
   font-size:12px;
   }
+  /* BOX DIN PROFILE */
+.profile-box{
+  background:white;
+  padding:25px;
+  border-radius:15px;
+  max-width:450px;
+  margin:20px auto;
+  box-shadow:0 4px 15px rgba(0,0,0,0.1);
+  text-align:center;
+}
+
+/* HOTO */
+.profile-pic-wrap{
+  position:relative;
+  display:inline-block;
+  margin-bottom:15px;
+}
+#profilePic{
+  width:120px;
+  height:120px;
+  border-radius:50%;
+  border:4px solid #8e44ad;
+  object-fit:cover;
+}
+#picUpload{
+  margin-top:10px;
+  font-size:13px;
+  color:#555;
+}
+
+/* BAYANIN USER */
+.user-info h3{
+  margin:5px 0;
+  color:#2c3e50;
+}
+.user-info p{
+  margin:3px 0;
+  color:#7f8c8d;
+  font-size:14px;
+}
+.user-info small{
+  background:#ecf0f1;
+  padding:3px 10px;
+  border-radius:20px;
+  color:#8e44ad;
+  font-weight:bold;
+}
+
+/* FORM NA UPDATE */
+.update-form{
+  margin-top:20px;
+  text-align:left;
+}
+.update-form label{
+  font-weight:bold;
+  color:#2c3e50;
+  font-size:14px;
+  display:block;
+  margin-top:10px;
+}
+.update-form input{
+  width:100%;
+  padding:12px;
+  margin:5px 0 10px 0;
+  border:1px solid #ddd;
+  border-radius:8px;
+  box-sizing:border-box;
+}
+.update-form button{
+  width:100%;
+  padding:12px;
+  background:#27ae60;
+  color:white;
+  border:none;
+  border-radius:8px;
+  font-weight:bold;
+  cursor:pointer;
+  margin-top:10px;
+}
+.update-form button:hover{
+  background:#229954;
+  }
 </style>
 </head>
 <body>
@@ -71,18 +153,6 @@ input, textarea{width:100%; padding:10px; margin:8px 0; border:1px solid #ddd; b
 <div id="pendingList"></div>
 
 <hr>
-
-<h2>Approved Lecturers <span id="teacherCount">0</span></h2>
-<div id="lectList"></div>
-
-<hr>
-
-<h2>Approved Students <span id="studentCount">0</span></h2>
-<div id="studList"></div>
-    <div class="stats">
-      <div class="stat-box"><h1 id="studentCount">0</h1><p>Students</p></div>
-      <div class="stat-box" style="background:#3498db;"><h1 id="teacherCount">0</h1><p>Lecturers</p></div>
-    </div>
   </div>
 
   <!-- PAGE 2: STUDENTS -->
@@ -92,6 +162,21 @@ input, textarea{width:100%; padding:10px; margin:8px 0; border:1px solid #ddd; b
       <input id="sName" placeholder="Sunan Student">
       <input id="sEmail" placeholder="Email na Student">
       <input id="sPass" placeholder="Password">
+      <input type="password" id="password" placeholder=" Confirm Your Password">
+
+<label>Department</label>
+<select id="dept">
+  <option value="">-- Choose Your Department --</option>
+  <option value="Computer Science">Computer Science</option>
+  <option value="Accounting">Accounting</option>
+  <option value="Business Admin">Business Admin</option>
+  <option value="Mass Comm">Mass Comm</option>
+  <option value="Economics">Economics</option>
+  <option value="MLT">Medical Laboratory</option>
+  <option value="Computer Engineering">Computer Engineering</option>
+</select>
+
+<button onclick="addStudent()">Add Student</button>
       <button class="btn-purple" onclick="addUser('student')">Add Student</button>
     </div>
     <div class="card">
@@ -107,6 +192,19 @@ input, textarea{width:100%; padding:10px; margin:8px 0; border:1px solid #ddd; b
       <input id="tName" placeholder="Name of Lecturer">
       <input id="tEmail" placeholder="Email of Lecturer">
       <input id="tPass" placeholder="Password">
+      <input type="password" id="password" placeholder=" Confirm Your Password">
+
+<label>Department</label>
+<select id="dept">
+  <option value="">-- Choose Your Department --</option>
+  <option value="Computer Science">Computer Science</option>
+  <option value="Accounting">Accounting</option>
+  <option value="Business Admin">Business Admin</option>
+  <option value="Mass Comm">Mass Comm</option>
+  <option value="Economics">Economics</option>
+  <option value="MLT">Medical Laboratory</option>
+  <option value="Computer Engineering">Computer Engineering</option>
+
       <button class="btn-purple" style="background:#3498db;" onclick="addUser('teacher')">Add Lecturer</button>
     </div>
     <div class="card">
@@ -132,6 +230,14 @@ input, textarea{width:100%; padding:10px; margin:8px 0; border:1px solid #ddd; b
       <span class="material-icons" style="font-size:60px; color:#8e44ad;">admin_panel_settings</span>
       <h3>Admin</h3>
       <p>admin@gmail.com</p>
+      <div class="box">
+  <img id="profilePic" src="default.png" style="width:100px; height:100px; border-radius:50%;">
+  <input type="file" id="picUpload" accept="image/*">
+  
+  <input type="text" id="newName" placeholder="New Username">
+  <input type="password" id="newPass" placeholder="New Password">
+  <button onclick="updateProfile()">Update Profile</button>
+      </div>
       <button class="btn-purple" style="background:#e74c3c;" onclick="logout()">Logout</button>
     </div>
   </div>
@@ -180,9 +286,10 @@ function addUser(role){
     let name = document.getElementById(role.charAt(0)+'Name').value;
     let email = document.getElementById(role.charAt(0)+'Email').value;
     let password = document.getElementById(role.charAt(0)+'Pass').value;
+    let dept = document.getElementById('dept').value;
     if(name=="" || email=="" || password==""){ alert("fill the field "); return; }
     let key = email.replace('.',',');
-    db.ref('users/' + key).set({name, email, password, role, status: 'approved'})
+    db.ref('users/' + key).set({name, email, password,dept, role, status: 'approved'})
    .then(()=> { alert(" Added " + role + " ✅"); loadUsers(); });
 }
 function loadUsers(){
@@ -234,7 +341,7 @@ function loadUsers(){
 // SAKA WADANNAN FUNCTIONS 2 A KASA
 function approveUser(id){
   db.ref('users/'+id).update({status:'approved'})
-  .then(()=>{ alert("An Approve!"); });
+  .then(()=>{ alert("You are Approve!"); });
 }
 
 function deleteUser(id){
@@ -242,6 +349,53 @@ function deleteUser(id){
     db.ref('users/'+id).remove()
     .then(()=>{ alert("Deleted Successfully !"); });
   }
+  }
+  // NUNA BAYANIN ADMIN LOKACIN DA PAGE TA BUƊE
+window.onload = function(){
+  let email = localStorage.getItem('userEmail'); // dole ka ajiye shi a login
+  if(email){
+    let key = email.replace(/\./g, '_');
+    db.ref('users/' + key).once('value', snap => {
+      let u = snap.val();
+      if(u){
+        document.getElementById('userName').innerText = u.name;
+        document.getElementById('userEmail').innerText = u.email;
+        document.getElementById('userDept').innerText = u.dept;
+        if(u.photo) document.getElementById('profilePic').src = u.photo;
+      }
+    });
+  }
+}
+
+// FUNCTION NA UPDATE
+function updateProfile(){
+  let email = localStorage.getItem('userEmail');
+  let key = email.replace(/\./g, '_');
+  let newName = document.getElementById('newName').value;
+  let newPass = document.getElementById('newPass').value;
+
+  let updates = {};
+  if(newName!= "") updates.name = newName;
+  if(newPass!= "") updates.password = newPass;
+
+  db.ref('users/' + key).update(updates)
+.then(()=>{ 
+    alert("Profile Updated ✅"); 
+    location.reload(); // don ya sake nunawa
+  });
+}
+
+// NA HOTO
+document.getElementById('picUpload').onchange = function(e){
+  let file = e.target.files[0];
+  let reader = new FileReader();
+  reader.onload = function(){
+    let pic = reader.result;
+    document.getElementById('profilePic').src = pic;
+    db.ref('users/' + key).update({photo: pic});
+    alert("Profile Picture Updated");
+  }
+  reader.readAsDataURL(file);
   }
 
 function addTask(){
@@ -253,6 +407,31 @@ function addTask(){
         dueDate: document.getElementById('dueDate').value
     }).then(()=> alert(" Assignment Created✅"));
 }
+  function updateProfile(){
+  let email = localStorage.getItem('userEmail'); // ka tabbatar kana ajiye email a login
+  let key = email.replace(/\./g, '_');
+  let newName = document.getElementById('newName').value;
+  let newPass = document.getElementById('newPass').value;
+
+  let updates = {};
+  if(newName!= "") updates.name = newName;
+  if(newPass!= "") updates.password = newPass;
+
+  db.ref('users/' + key).update(updates)
+ .then(()=>{ alert("Profile Updated"); });
+}
+
+// NA PROFILE PICTURE - yana adanawa a database a matsayin base64
+document.getElementById('picUpload').onchange = function(e){
+  let file = e.target.files[0];
+  let reader = new FileReader();
+  reader.onload = function(){
+    let pic = reader.result;
+    document.getElementById('profilePic').src = pic;
+    db.ref('users/' + key).update({photo: pic});
+  }
+  reader.readAsDataURL(file);
+  }
 loadUsers(); // kira shi da farko
 </script>
 </body>
