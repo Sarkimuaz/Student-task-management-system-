@@ -52,8 +52,8 @@ function login(){
 
     // 1. ADMIN NA MUSAMMAN - baya bukatar database
     if(email == "admin@gmail.com" && password == "admin123" && role == "admin"){
-        localStorage.setItem('currentUser', JSON.stringify({email, role, name:"Admin"}));
-        localStorage.setItem('userEmail', email); // NA KARA WANNAN DON PROFILE YA YI AIKI
+        localStorage.setItem('currentUser', JSON.stringify({email: email, role: role, name: user.name, photo: user.photo}));
+localStorage.setItem('userEmail', email);
         window.location.href = 'Admin_dashboard.html'; // NA GYARA A ZUWA BABBAN A
         return;
     }
@@ -77,3 +77,4 @@ function login(){
 </script>
 </body>
 </html>
+
