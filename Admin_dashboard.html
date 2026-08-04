@@ -14,18 +14,16 @@ body{font-family:'Segoe UI'; background:#f4f6f9; margin:0; padding-bottom:80px;}
 .stat-box h1{margin:0; font-size:40px;}
 .btn-purple{background:#8e44ad; color:white; border:none; padding:12px; border-radius:8px; width:100%; font-weight:bold; cursor:pointer; margin:5px 0;}
 .btn-green{background:#27ae60; color:white; border:none; padding:5px 10px; border-radius:5px;}
-input, textarea{width:100%; padding:10px; margin:8px 0; border:1px solid #ddd; border-radius:8px; box-sizing:border-box;}
+input, textarea, select{width:100%; padding:10px; margin:8px 0; border:1px solid #ddd; border-radius:8px; box-sizing:border-box;} /* na kara select */
 .hidden{display:none;}
 .bottom-nav{position:fixed; bottom:0; left:0; right:0; background:white; display:flex; justify-content:space-around; padding:10px 0; box-shadow:0 -2px 10px rgba(0,0,0,0.1);}
 .nav-item{text-align:center; color:#777; cursor:pointer; font-size:12px;}
-.nav-item .material-icons{font-size:26px; display:block;}
+.nav-item.material-icons{font-size:26px; display:block;}
 .nav-item.active{color:#8e44ad; font-weight:bold;}
 .list-item{display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #eee;}
-  /* CSS NA PENDING / APPROVED LIST */
-#pendingList, #lectList, #studList {
-  margin-bottom: 30px;
-}
 
+/* CSS NA PENDING / APPROVED LIST */
+#pendingList, #lectList, #studList { margin-bottom: 30px; }
 .list-item {
   display: flex;
   justify-content: space-between;
@@ -39,29 +37,24 @@ input, textarea{width:100%; padding:10px; margin:8px 0; border:1px solid #ddd; b
   flex-wrap: wrap;
   gap: 10px;
 }
-
-.list-item span {
-  flex: 1;
-  font-size: 15px;
-}
-
-.list-item span b {
-  color: #2c3e50;
-}
+.list-item span { flex: 1; font-size: 15px; }
+.list-item span b { color: #2c3e50; }
 
 /* BUTTONS */
 .list-item button {
   padding: 6px 12px;
   border: none;
-  border-radius: 6px
-  .list-item small{
+  border-radius: 6px; /* NA KARA ; NAN */
+  cursor:pointer;
+}
+.list-item small{
   background:#ecf0f1;
   padding:2px 8px;
   border-radius:5px;
   color:#2c3e50;
   font-size:12px;
-  }
-  /* BOX DIN PROFILE */
+}
+/* BOX DIN PROFILE */
 .profile-box{
   background:white;
   padding:25px;
@@ -142,17 +135,28 @@ input, textarea{width:100%; padding:10px; margin:8px 0; border:1px solid #ddd; b
 }
 .update-form button:hover{
   background:#229954;
-  }
+}
 </style>
 </head>
 <body>
 <div class="container">
   <!-- PAGE 1: HOME -->
   <div id="page-home">
-    <h2>Users Waiting for Approval <span id="pendingCount">0</span></h2>
-<div id="pendingList"></div>
+    <!-- NA KARA WADANNAN BOXES 2 -->
+    <div style="display:flex; gap:15px; margin-bottom:20px;">
+      <div style="flex:1; background:#3498db; color:white; padding:15px; border-radius:10px; text-align:center;">
+        <h3 style="margin:0; font-size:14px;">Total Students</h3>
+        <h2 id="studentCount" style="margin:5px 0 0 0; font-size:28px;">0</h2>
+      </div>
+      <div style="flex:1; background:#8e44ad; color:white; padding:15px; border-radius:10px; text-align:center;">
+        <h3 style="margin:0; font-size:14px;">Total Lecturers</h3>
+        <h2 id="teacherCount" style="margin:5px 0 0 0; font-size:28px;">0</h2>
+      </div>
+    </div>
 
-<hr>
+    <h2>Users Waiting for Approval <span id="pendingCount">0</span></h2>
+    <div id="pendingList"></div>
+    <hr>
   </div>
 
   <!-- PAGE 2: STUDENTS -->
@@ -162,21 +166,17 @@ input, textarea{width:100%; padding:10px; margin:8px 0; border:1px solid #ddd; b
       <input id="sName" placeholder="Sunan Student">
       <input id="sEmail" placeholder="Email na Student">
       <input id="sPass" placeholder="Password">
-      <input type="password" id="password" placeholder=" Confirm Your Password">
-
-<label>Department</label>
-<select id="dept">
-  <option value="">-- Choose Your Department --</option>
-  <option value="Computer Science">Computer Science</option>
-  <option value="Accounting">Accounting</option>
-  <option value="Business Admin">Business Admin</option>
-  <option value="Mass Comm">Mass Comm</option>
-  <option value="Economics">Economics</option>
-  <option value="MLT">Medical Laboratory</option>
-  <option value="Computer Engineering">Computer Engineering</option>
-</select>
-
-<button onclick="addStudent()">Add Student</button>
+      <label>Department</label>
+      <select id="sDept"> <!-- NA CANZA ID DIN ZUWA sDept -->
+        <option value="">-- Choose Department --</option>
+        <option value="Computer Science">Computer Science</option>
+        <option value="Accounting">Accounting</option>
+        <option value="Business Admin">Business Admin</option>
+        <option value="Mass Comm">Mass Comm</option>
+        <option value="Economics">Economics</option>
+        <option value="MLT">Medical Laboratory</option>
+        <option value="Computer Engineering">Computer Engineering</option>
+      </select>
       <button class="btn-purple" onclick="addUser('student')">Add Student</button>
     </div>
     <div class="card">
@@ -192,19 +192,17 @@ input, textarea{width:100%; padding:10px; margin:8px 0; border:1px solid #ddd; b
       <input id="tName" placeholder="Name of Lecturer">
       <input id="tEmail" placeholder="Email of Lecturer">
       <input id="tPass" placeholder="Password">
-      <input type="password" id="password" placeholder=" Confirm Your Password">
-
-<label>Department</label>
-<select id="dept">
-  <option value="">-- Choose Your Department --</option>
-  <option value="Computer Science">Computer Science</option>
-  <option value="Accounting">Accounting</option>
-  <option value="Business Admin">Business Admin</option>
-  <option value="Mass Comm">Mass Comm</option>
-  <option value="Economics">Economics</option>
-  <option value="MLT">Medical Laboratory</option>
-  <option value="Computer Engineering">Computer Engineering</option>
-
+      <label>Department</label>
+      <select id="tDept"> <!-- NA CANZA ID DIN ZUWA tDept -->
+        <option value="">-- Choose Department --</option>
+        <option value="Computer Science">Computer Science</option>
+        <option value="Accounting">Accounting</option>
+        <option value="Business Admin">Business Admin</option>
+        <option value="Mass Comm">Mass Comm</option>
+        <option value="Economics">Economics</option>
+        <option value="MLT">Medical Laboratory</option>
+        <option value="Computer Engineering">Computer Engineering</option>
+      </select>
       <button class="btn-purple" style="background:#3498db;" onclick="addUser('teacher')">Add Lecturer</button>
     </div>
     <div class="card">
@@ -226,19 +224,24 @@ input, textarea{width:100%; padding:10px; margin:8px 0; border:1px solid #ddd; b
 
   <!-- PAGE 5: PROFILE -->
   <div id="page-profile" class="hidden">
-    <div class="card" style="text-align:center;">
-      <span class="material-icons" style="font-size:60px; color:#8e44ad;">admin_panel_settings</span>
-      <h3>Admin</h3>
-      <p>admin@gmail.com</p>
-      <div class="box">
-  <img id="profilePic" src="default.png" style="width:100px; height:100px; border-radius:50%;">
-  <input type="file" id="picUpload" accept="image/*">
-  
-  <input type="text" id="newName" placeholder="New Username">
-  <input type="password" id="newPass" placeholder="New Password">
-  <button onclick="updateProfile()">Update Profile</button>
+    <div class="profile-box"> <!-- NA CANZA CLASS DIN ZUWA profile-box -->
+      <div class="profile-pic-wrap">
+        <img id="profilePic" src="default.png">
+        <input type="file" id="picUpload" accept="image/*">
       </div>
-      <button class="btn-purple" style="background:#e74c3c;" onclick="logout()">Logout</button>
+      <div class="user-info"> <!-- NA KARA WADANNAN IDS -->
+        <h3 id="userName">Admin</h3>
+        <p id="userEmail">admin@gmail.com</p>
+        <small id="userDept">Admin</small>
+      </div>
+      <div class="update-form">
+        <label>Sabon Username</label>
+        <input type="text" id="newName" placeholder="Rubuta sabon suna">
+        <label>Sabon Password</label>
+        <input type="password" id="newPass" placeholder="Rubuta sabon password">
+        <button onclick="updateProfile()">Update Profile</button>
+      </div>
+      <button class="btn-purple" style="background:#e74c3c; margin-top:20px;" onclick="logout()">Logout</button>
     </div>
   </div>
 </div>
@@ -276,8 +279,7 @@ function showPage(page, el){
     document.getElementById('page-' + page).classList.remove('hidden');
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
     if(el) el.classList.add('active');
-    document.getElementById('pageTitle').innerText = page.charAt(0).toUpperCase() + page.slice(1);
-    loadUsers();
+    loadUsers(); // Na cire pageTitle saboda babu shi
 }
 
 function logout(){ localStorage.removeItem('currentUser'); window.location.href = 'Index.html'; }
@@ -286,16 +288,17 @@ function addUser(role){
     let name = document.getElementById(role.charAt(0)+'Name').value;
     let email = document.getElementById(role.charAt(0)+'Email').value;
     let password = document.getElementById(role.charAt(0)+'Pass').value;
-    let dept = document.getElementById('dept').value;
-    if(name=="" || email=="" || password==""){ alert("fill the field "); return; }
-    let key = email.replace('.',',');
+    let dept = document.getElementById(role.charAt(0)+'Dept').value; // NA GYARA NAN
+    if(name=="" || email=="" || password=="" || dept==""){ alert("Cika dukkan filaye"); return; } // na kara dept
+    let key = email.replace(/\./g,'_'); // na daidaita shi ya zama _
     db.ref('users/' + key).set({name, email, password,dept, role, status: 'approved'})
-   .then(()=> { alert(" Added " + role + " ✅"); loadUsers(); });
+  .then(()=> { alert(" Added " + role + " ✅"); loadUsers(); });
 }
+
 function loadUsers(){
   let sCount=0, tCount=0, pCount=0;
   let sHtml="", tHtml="", pHtml="";
-  
+
   db.ref('users').on('value', snap=>{
     snap.forEach(child=>{
       let u = child.val();
@@ -306,53 +309,53 @@ function loadUsers(){
         pHtml += `<div class="list-item">
   <span><b>${u.name}</b> - ${u.role} - <small>${u.dept}</small></span>
   <span>${u.email}</span>
-  <button onclick="approveUser('${id}')">Approve✔️</button>
-  <button onclick="deleteUser('${id}')">Delete❌</button>
+  <button onclick="approveUser('${id}')" style="background:#27ae60; color:white;">Approve✔️</button>
+  <button onclick="deleteUser('${id}')" style="background:#e74c3c; color:white;">Delete❌</button>
 </div>`;
       }
       if(u.role == 'student' && u.status == 'approved'){
-  sCount++;
-  sHtml += `<div class="list-item">
-    <span>${u.name} - <small>${u.dept}</small></span>
-    <span>${u.email}</span>
-    <button onclick="deleteUser('${id}')">Delete</button>
-  </div>`;
-}
+        sCount++;
+        sHtml += `<div class="list-item">
+          <span>${u.name} - <small>${u.dept}</small></span>
+          <span>${u.email}</span>
+          <button onclick="deleteUser('${id}')" style="background:#e74c3c; color:white;">Delete</button>
+        </div>`;
+      }
       if(u.role == 'teacher' && u.status == 'approved'){
-  tCount++;
-  tHtml += `<div class="list-item">
-    <span>${u.name} - <small>${u.dept}</small></span>
-    <span>${u.email}</span>
-    <button onclick="deleteUser('${id}')">Delete</button>
-  </div>`;
-  }
+        tCount++;
+        tHtml += `<div class="list-item">
+          <span>${u.name} - <small>${u.dept}</small></span>
+          <span>${u.email}</span>
+          <button onclick="deleteUser('${id}')" style="background:#e74c3c; color:white;">Delete</button>
+        </div>`;
+      }
     });
 
     document.getElementById('studentCount').innerText = sCount;
     document.getElementById('teacherCount').innerText = tCount;
-    document.getElementById('pendingCount').innerText = pCount; // sai ka saka wani span id="pendingCount" a HTML
-    
+    document.getElementById('pendingCount').innerText = pCount;
+
     document.getElementById('studentList').innerHTML = sHtml || "Babu student";
     document.getElementById('teacherList').innerHTML = tHtml || "Babu lecturer";
-    document.getElementById('pendingList').innerHTML = pHtml || "Babu wanda ke jira"; // sai ka saka wani div id="pendingList"
+    document.getElementById('pendingList').innerHTML = pHtml || "Babu wanda ke jira";
   });
 }
 
-// SAKA WADANNAN FUNCTIONS 2 A KASA
 function approveUser(id){
   db.ref('users/'+id).update({status:'approved'})
-  .then(()=>{ alert("You are Approve!"); });
+ .then(()=>{ alert("An Approve!"); });
 }
 
 function deleteUser(id){
-  if(confirm("are agry ?")){
+  if(confirm("Tabbatar kana son gogewa?")){
     db.ref('users/'+id).remove()
-    .then(()=>{ alert("Deleted Successfully !"); });
+   .then(()=>{ alert("An Gogewa!"); });
   }
-  }
-  // NUNA BAYANIN ADMIN LOKACIN DA PAGE TA BUƊE
+}
+
+// NUNA BAYANIN ADMIN LOKACIN DA PAGE TA BUƊE
 window.onload = function(){
-  let email = localStorage.getItem('userEmail'); // dole ka ajiye shi a login
+  let email = localStorage.getItem('userEmail');
   if(email){
     let key = email.replace(/\./g, '_');
     db.ref('users/' + key).once('value', snap => {
@@ -373,21 +376,18 @@ function updateProfile(){
   let key = email.replace(/\./g, '_');
   let newName = document.getElementById('newName').value;
   let newPass = document.getElementById('newPass').value;
-
   let updates = {};
   if(newName!= "") updates.name = newName;
   if(newPass!= "") updates.password = newPass;
-
   db.ref('users/' + key).update(updates)
-.then(()=>{ 
-    alert("Profile Updated ✅"); 
-    location.reload(); // don ya sake nunawa
-  });
+ .then(()=>{ alert("Profile Updated ✅"); location.reload(); });
 }
 
 // NA HOTO
 document.getElementById('picUpload').onchange = function(e){
   let file = e.target.files[0];
+  let email = localStorage.getItem('userEmail'); // NA KARA WANNAN
+  let key = email.replace(/\./g, '_'); // NA KARA WANNAN
   let reader = new FileReader();
   reader.onload = function(){
     let pic = reader.result;
@@ -396,7 +396,7 @@ document.getElementById('picUpload').onchange = function(e){
     alert("Profile Picture Updated");
   }
   reader.readAsDataURL(file);
-  }
+}
 
 function addTask(){
     let id = 'task_' + Date.now();
@@ -407,32 +407,7 @@ function addTask(){
         dueDate: document.getElementById('dueDate').value
     }).then(()=> alert(" Assignment Created✅"));
 }
-  function updateProfile(){
-  let email = localStorage.getItem('userEmail'); // ka tabbatar kana ajiye email a login
-  let key = email.replace(/\./g, '_');
-  let newName = document.getElementById('newName').value;
-  let newPass = document.getElementById('newPass').value;
 
-  let updates = {};
-  if(newName!= "") updates.name = newName;
-  if(newPass!= "") updates.password = newPass;
-
-  db.ref('users/' + key).update(updates)
- .then(()=>{ alert("Profile Updated"); });
-}
-
-// NA PROFILE PICTURE - yana adanawa a database a matsayin base64
-document.getElementById('picUpload').onchange = function(e){
-  let file = e.target.files[0];
-  let reader = new FileReader();
-  reader.onload = function(){
-    let pic = reader.result;
-    document.getElementById('profilePic').src = pic;
-    db.ref('users/' + key).update({photo: pic});
-  }
-  reader.readAsDataURL(file);
-  }
-loadUsers(); // kira shi da farko
+loadUsers();
 </script>
-</body>
-</html>
+</body>  </html>
