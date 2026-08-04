@@ -5,9 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 <style>
-body{font-family:'Segoe UI'; background:#f4f6f9; margin:0; padding-bottom:80px;}
-.header{background:#8e44ad; color:white; padding:15px 20px; position:sticky; top:0;}
-.container{padding:20px;}
+body{font-family:'Segoe UI'; background:#f4f6f9; margin:0; padding-bottom:100px;} /* NA KARA ZUWA 100px */
 .card{background:white; padding:20px; border-radius:12px; box-shadow:0 2px 5px rgba(0,0,0,0.1); margin-bottom:20px;}
 .stats{display:grid; grid-template-columns:1fr 1fr; gap:15px;}
 .stat-box{background:#8e44ad; color:white; padding:20px; border-radius:12px; text-align:center;}
@@ -224,25 +222,27 @@ input, textarea, select{width:100%; padding:10px; margin:8px 0; border:1px solid
 
   <!-- PAGE 5: PROFILE -->
   <div id="page-profile" class="hidden">
-    <div class="profile-box"> <!-- NA CANZA CLASS DIN ZUWA profile-box -->
-      <div class="profile-pic-wrap">
-        <img id="profilePic" src="default.png">
-        <input type="file" id="picUpload" accept="image/*">
-      </div>
-      <div class="user-info"> <!-- NA KARA WADANNAN IDS -->
-        <h3 id="userName">Admin</h3>
-        <p id="userEmail">admin@gmail.com</p>
-        <small id="userDept">Admin</small>
-      </div>
-      <div class="update-form">
-        <label>Sabon Username</label>
-        <input type="text" id="newName" placeholder="Rubuta sabon suna">
-        <label>Sabon Password</label>
-        <input type="password" id="newPass" placeholder="Rubuta sabon password">
-        <button onclick="updateProfile()">Update Profile</button>
-      </div>
-      <button class="btn-purple" style="background:#e74c3c; margin-top:20px;" onclick="logout()">Logout</button>
+  <div class="profile-box">
+    <div class="profile-pic-wrap">
+      <img id="profilePic" src="https://i.imgur.com/8Km9tLL.png"> <!-- NA CANZA ZUWA LINK -->
+      <input type="file" id="picUpload" accept="image/*">
     </div>
+    <div class="user-info">
+      <h3 id="userName">Admin</h3>
+      <p id="userEmail">admin@gmail.com</p>
+      <small id="userDept">Admin</small>
+    </div>
+    <div class="update-form">
+      <label>New  Username</label>
+      <input type="text" id="newName" placeholder="Rubuta sabon suna">
+      <label>New  Password</label>
+      <input type="password" id="newPass" placeholder="Rubuta sabon password">
+      <button onclick="updateProfile()">Update Profile</button>
+    </div>
+    <button class="btn-purple" style="background:#e74c3c; margin-top:20px;" onclick="logout()">Logout</button>
+  </div>
+  </div>
+    
   </div>
 </div>
 
@@ -383,20 +383,24 @@ function updateProfile(){
  .then(()=>{ alert("Profile Updated ✅"); location.reload(); });
 }
 
-// NA HOTO
+// NA HOTO - VERSION 1
 document.getElementById('picUpload').onchange = function(e){
   let file = e.target.files[0];
-  let email = localStorage.getItem('userEmail'); // NA KARA WANNAN
-  let key = email.replace(/\./g, '_'); // NA KARA WANNAN
+  if(!file) return;
+  let email = localStorage.getItem('userEmail');
+  if(!email){ alert(" You Must log in"); return; }
+  let key = email.replace(/\./g, '_');
+
   let reader = new FileReader();
   reader.onload = function(){
     let pic = reader.result;
     document.getElementById('profilePic').src = pic;
     db.ref('users/' + key).update({photo: pic});
-    alert("Profile Picture Updated");
+    alert("Profile Picture Updated ✅");
   }
   reader.readAsDataURL(file);
-}
+  }
+
 
 function addTask(){
     let id = 'task_' + Date.now();
