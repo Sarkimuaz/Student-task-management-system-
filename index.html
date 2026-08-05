@@ -57,26 +57,22 @@ function login(){
     if(snap.exists()){
       let u=snap.val();
       if(u.password != password){alert("Wrong Password");return}
-      
-      // NAN MUKA GYARA: Mu daidaita lecturer = teacher
-      let userRole = u.role;
-      let selectedRole = role;
-      if(userRole == 'lecturer') userRole = 'teacher';
-      if(selectedRole == 'lecturer') selectedRole = 'teacher';
-      
-      if(userRole != selectedRole){
-        alert("You are " + u.role + ". Please select " + u.role);
-        return;
-      }
+      if(u.role != role){alert("You are " + u.role + ". Please select " + u.role);return}
       
       if(u.role=='admin' || u.status=='approved'){
         localStorage.setItem('currentUser',JSON.stringify(u));
-        // Idan lecturer ne, mu tura shi lecturer.html
-        if(u.role == 'lecturer'){
-          window.location.href = 'lecturer.html'; 
-        }else{
-          window.location.href = u.role+'.html'; 
+        
+        // NAN MUKA GYARA: Mun sanya / gaba
+        if(u.role == 'student'){
+          window.location.href = '/student.html'; 
         }
+        else if(u.role == 'lecturer'){
+          window.location.href = '/lecturer.html'; // <-- TILAS YA TURA NAN
+        }
+        else if(u.role == 'admin'){
+          window.location.href = '/Admin_dashboard.html'; // Sunanka yana _dashboard
+        }
+        
       }else{
         alert("Not Approved Yet. Contact Admin.");
       }
