@@ -34,7 +34,7 @@ a{text-align:center; display:block; margin-top:10px; color:#3498db; text-decorat
   <option value="Economics">Economics</option>
 </select>
     <button onclick="register()">Register</button>
-    <a href="login.html">Already have account? Login</a>
+    <a href="index.html">Already have account? Login</a>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -59,6 +59,8 @@ function register(){ // <- Na gyara nan
   let password = document.getElementById('password').value.trim();
   let role = document.getElementById('role').value;
   let dept = document.getElementById('dept').value;
+  let data={name,email,password,role, approved: false}; // kara approved: false
+if(role=='student')data.department=dept;
 
   if(name=="" || email=="" || password=="" || role=="" || dept==""){
     alert("Fill all the fields "); 
