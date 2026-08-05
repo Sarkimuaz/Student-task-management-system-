@@ -34,7 +34,7 @@
       </select>
     </div>
     <button class="btn" onclick="login()">Login</button>
-    <div class="link">Don't have account? <a href="register.html">Register</a></div>
+    <div class="link">Don't have account? <a href="Register.html">Register</a></div>
   </div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -66,7 +66,7 @@ function login(){
         
         // NAN MUKA KARA ADMIN TURU
         if(u.role == 'admin'){
-          window.location.replace('/Admin_dashboard.html'); 
+          window.location.replace('/Admin.html'); 
         }
         else if(u.role == 'student'){
           window.location.replace('/student.html'); 
