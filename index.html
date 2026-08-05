@@ -59,18 +59,20 @@ function login(){
       if(u.password != password){alert("Wrong Password");return}
       if(u.role != role){alert("You are " + u.role + ". Please select " + u.role);return}
       
-      if(u.role=='admin' || u.status=='approved'){
+      // 1. ADMIN BA YA BUKATAR APPROVAL
+      // 2. STUDENT DA LECTURER DOLE SU ZAMA status: "approved"
+      if(u.role == 'admin' || u.status == 'approved'){
         localStorage.setItem('currentUser',JSON.stringify(u));
         
-        // TILASTA TURU
-        if(u.role == 'student'){
+        // NAN MUKA KARA ADMIN TURU
+        if(u.role == 'admin'){
+          window.location.replace('/Admin_dashboard.html'); 
+        }
+        else if(u.role == 'student'){
           window.location.replace('/student.html'); 
         }
         else if(u.role == 'lecturer'){
-          window.location.replace('/lecturer.html'); // MUN SANYA / GABA
-        }
-        else if(u.role == 'admin'){
-          window.location.replace('/Admin_dashboard.html'); 
+          window.location.replace('/lecturer.html'); 
         }
         
       }else{
