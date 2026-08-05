@@ -57,18 +57,32 @@ function login(){
     if(snap.exists()){
       let u=snap.val();
       if(u.password != password){alert("Wrong Password");return}
-      if(u.role != role){alert("You are " + u.role + ". Select " + u.role);return}
       
-      // NAN NE MUKA GYARA: Muna duba status maimakon approved
+      // NAN MUKA GYARA: Mu daidaita lecturer = teacher
+      let userRole = u.role;
+      let selectedRole = role;
+      if(userRole == 'lecturer') userRole = 'teacher';
+      if(selectedRole == 'lecturer') selectedRole = 'teacher';
+      
+      if(userRole != selectedRole){
+        alert("You are " + u.role + ". Please select " + u.role);
+        return;
+      }
+      
       if(u.role=='admin' || u.status=='approved'){
         localStorage.setItem('currentUser',JSON.stringify(u));
-        window.location.href = u.role+'.html'; 
+        // Idan lecturer ne, mu tura shi lecturer.html
+        if(u.role == 'lecturer'){
+          window.location.href = 'lecturer.html'; 
+        }else{
+          window.location.href = u.role+'.html'; 
+        }
       }else{
         alert("Not Approved Yet. Contact Admin.");
       }
     }else{alert("User not found")}
   });
-  }
+   }
 </script>
 </body>
 </html>
