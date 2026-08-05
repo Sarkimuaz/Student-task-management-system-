@@ -66,17 +66,14 @@ db.ref('users/'+key).once('value').then(snap=>{
     
     if(u.role == 'admin' || u.status == 'approved'){
       localStorage.setItem('currentUser',JSON.stringify(u));
-      
       if(u.role == 'admin'){
-        window.location.replace('/Admin.html'); 
-      }
-      else if(u.role == 'student'){
-        window.location.replace('/student.html'); 
-      }
-      else if(u.role == 'lecturer'){
-        window.location.replace('/lecturer.html'); 
-      }
-      
+  window.location.href = 'Admin.html'; 
+}
+else if(u.role == 'student'){
+  window.location.href = 'student.html'; 
+}
+else if(u.role == 'lecturer'){
+  window.location.href = 'lecturer.html';   
     }else{
       alert("Not Approved Yet. Contact Admin.");
     }
