@@ -52,37 +52,36 @@ function login(){
   let key = email.replace(/\./g,'_'); 
   
   if(email=="" || password==""){alert("Fill all fields");return}
-  
-  db.ref('users/'+key).once('value').then(snap=>{
-    if(snap.exists()){
-      let u=snap.val();
-      if(u.password != password){alert("Wrong Password");return}
-      if(u.role != role){alert("You are " + u.role + ". Please select " + u.role);return}
+db.ref('users/'+key).once('value').then(snap=>{
+  if(snap.exists()){
+    let u = snap.val();
+    
+    // Convert old "teacher" to "lecturer"
+    if(u.role === "teacher") {
+      u.role = "lecturer";
+    }
+    
+    if(u.password != password){alert("Wrong Password");return}
+    if(u.role != role){alert("You are " + u.role + ". Please select " + u.role);return}
+    
+    if(u.role == 'admin' || u.status == 'approved'){
+      localStorage.setItem('currentUser',JSON.stringify(u));
       
-      // 1. ADMIN BA YA BUKATAR APPROVAL
-      // 2. STUDENT DA LECTURER DOLE SU ZAMA status: "approved"
-      if(u.role == 'admin' || u.status == 'approved'){
-        localStorage.setItem('currentUser',JSON.stringify(u));
-        
-        // NAN MUKA KARA ADMIN TURU
-        if(u.role == 'admin'){
-          window.location.replace('/Admin.html'); 
-        }
-        else if(u.role == 'student'){
-          window.location.replace('/student.html'); 
-        }
-        else if(u.role == 'lecturer'){
-          window.location.replace('/lecturer.html'); 
-        }
-        
-      }else{
-        alert("Not Approved Yet. Contact Admin.");
+      if(u.role == 'admin'){
+        window.location.replace('/Admin.html'); 
       }
-    }else{alert("User not found")}
-  }).catch(err=>{
-    alert("Error: " + err.message);
-  });
-   }
+      else if(u.role == 'student'){
+        window.location.replace('/student.html'); 
+      }
+      else if(u.role == 'lecturer'){
+        window.location.replace('/lecturer.html'); 
+      }
+      
+    }else{
+      alert("Not Approved Yet. Contact Admin.");
+    }
+  }else{alert("User not found")}
+})
 </script>
 </body>
 </html>
