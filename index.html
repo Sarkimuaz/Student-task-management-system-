@@ -62,21 +62,23 @@ function login(){
       if(u.role=='admin' || u.status=='approved'){
         localStorage.setItem('currentUser',JSON.stringify(u));
         
-        // NAN MUKA GYARA: Mun sanya / gaba
+        // TILASTA TURU
         if(u.role == 'student'){
-          window.location.href = '/student.html'; 
+          window.location.replace('/student.html'); 
         }
         else if(u.role == 'lecturer'){
-          window.location.href = '/lecturer.html'; // <-- TILAS YA TURA NAN
+          window.location.replace('/lecturer.html'); // MUN SANYA / GABA
         }
         else if(u.role == 'admin'){
-          window.location.href = '/Admin_dashboard.html'; // Sunanka yana _dashboard
+          window.location.replace('/Admin_dashboard.html'); 
         }
         
       }else{
         alert("Not Approved Yet. Contact Admin.");
       }
     }else{alert("User not found")}
+  }).catch(err=>{
+    alert("Error: " + err.message);
   });
    }
 </script>
