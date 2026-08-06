@@ -54,6 +54,22 @@ input, select{width:100%; padding:10px; margin:8px 0; border:1px solid #ddd; bor
       </div>
     </div>
   </div>
+  <!-- KASA DA DIV NA TOTAL STUDENTS & LECTURERS -->
+<div style="display: flex; gap: 10px; margin-top: 15px;">
+  
+  <!-- QUICK ADD STUDENT -->
+  <button onclick="openAddUserModal('student')" 
+    style="flex:1; background:#2196F3; color:white; border:none; padding:12px; border-radius:8px; font-weight:bold;">
+    + Quick Add Student
+  </button>
+
+  <!-- QUICK ADD LECTURER -->
+  <button onclick="openAddUserModal('teacher')" 
+    style="flex:1; background:#9C27B0; color:white; border:none; padding:12px; border-radius:8px; font-weight:bold;">
+    + Quick Add Lecturer
+  </button>
+
+</div>
 
   <!-- PAGE STUDENTS -->
   <div id="page-students" class="hidden">
