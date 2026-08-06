@@ -5,42 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 <style>
-body{font-family:'Segoe UI'; background:#f4f6f9; margin:0; padding-bottom:100px;}
+body{font-family:'Segoe UI', sans-serif; background:#f4f6f9; margin:0; padding-bottom:100px;}
 .card{background:white; padding:20px; border-radius:12px; box-shadow:0 2px 5px rgba(0,0,0,0.1); margin-bottom:20px;}
-.stats{display:grid; grid-template-columns:1fr 1fr; gap:15px;}
-.stat-box{background:#8e44ad; color:white; padding:20px; border-radius:12px; text-align:center;}
-.stat-box h1{margin:0; font-size:40px;}
 .btn-purple{background:#8e44ad; color:white; border:none; padding:12px; border-radius:8px; width:100%; font-weight:bold; cursor:pointer; margin:5px 0;}
-.btn-green{background:#27ae60; color:white; border:none; padding:5px 10px; border-radius:5px;}
-input, textarea, select{width:100%; padding:10px; margin:8px 0; border:1px solid #ddd; border-radius:8px; box-sizing:border-box;}
+input, select{width:100%; padding:10px; margin:8px 0; border:1px solid #ddd; border-radius:8px; box-sizing:border-box;}
 .hidden{display:none;}
-.bottom-nav{position:fixed; bottom:0; left:0; right:0; background:white; display:flex; justify-content:space-around; padding:10px 0; box-shadow:0 -2px 10px rgba(0,0,0,0.1);}
+.bottom-nav{position:fixed; bottom:0; left:0; right:0; background:white; display:flex; justify-content:space-around; padding:10px 0; box-shadow:0 -2px 10px rgba(0,0,0,0.1); z-index:100;}
 .nav-item{text-align:center; color:#777; cursor:pointer; font-size:12px;}
-.nav-item.material-icons{font-size:26px; display:block;}
+.nav-item .material-icons{font-size:26px; display:block;}
 .nav-item.active{color:#8e44ad; font-weight:bold;}
-.list-item{display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #eee;}
-
-/* CSS NA PENDING / APPROVED LIST */
-#pendingList, #lectList, #studList { margin-bottom: 30px; }
-.list-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 15px;
-  margin: 8px 0;
-  background: white;
-  border-radius: 10px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.08);
-  border-left: 4px solid #3498db;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-.list-item span { flex: 1; font-size: 15px; }
-.list-item span b { color: #2c3e50; }
-.list-item button {padding: 6px 12px; border: none; border-radius: 6px; cursor:pointer;}
+.list-item{display:flex; justify-content:space-between; align-items:center; padding:12px 15px; margin:8px 0; background:white; border-radius:10px; box-shadow:0 2px 5px rgba(0,0,0,0.08); border-left:4px solid #3498db; flex-wrap:wrap; gap:10px;}
+.list-item span{flex:1; font-size:15px;}
+.list-item button{padding:6px 12px; border:none; border-radius:6px; cursor:pointer; color:white;}
 .list-item small{background:#ecf0f1; padding:2px 8px; border-radius:5px; color:#2c3e50; font-size:12px;}
-
-/* BOX DIN PROFILE */
 .profile-box{background:white; padding:25px; border-radius:15px; max-width:450px; margin:20px auto; box-shadow:0 4px 15px rgba(0,0,0,0.1); text-align:center;}
 .user-info h3{margin:5px 0; color:#2c3e50;}
 .user-info p{margin:3px 0; color:#7f8c8d; font-size:14px;}
@@ -49,36 +26,41 @@ input, textarea, select{width:100%; padding:10px; margin:8px 0; border:1px solid
 .update-form label{font-weight:bold; color:#2c3e50; font-size:14px; display:block; margin-top:10px;}
 .update-form input{width:100%; padding:12px; margin:5px 0 10px 0; border:1px solid #ddd; border-radius:8px; box-sizing:border-box;}
 .update-form button{width:100%; padding:12px; background:#27ae60; color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer; margin-top:10px;}
-.update-form button:hover{background:#229954;}
 </style>
 </head>
 <body>
-<div class="container">
+<div class="container" style="padding:15px;">
 
-<!-- PAGE 1: HOME -->
-<div id="page-home">🏠
-  <!-- BOXES NA COUNT -->
-  <div style="display:flex; flex-direction:column; gap:15px; margin-bottom:25px;">
-    <div style="background:#3498db; color:white; padding:25px; border-radius:15px; text-align:center; box-shadow:0 4px 10px rgba(52,152,219,0.3);">
-      <h3 style="margin:0; font-size:18px; font-weight:500;">Total Students</h3>
-      <h2 id="studentCount" style="margin:10px 0 0 0; font-size:55px; font-weight:bold;">0</h2>
+  <!-- PAGE HOME -->
+  <div id="page-home">
+    <!-- Pending Approval (Sama) -->
+    <div class="card">
+      <h2 style="margin-top:0; font-size:18px;">
+        Users Waiting for Approval 
+        <span id="pendingCount" style="background:#e74c3c; color:white; padding:2px 10px; border-radius:20px; font-size:14px;">0</span>
+      </h2>
+      <div id="pendingList">No waiting approval</div>
     </div>
-    <div style="background:#8e44ad; color:white; padding:25px; border-radius:15px; text-align:center; box-shadow:0 4px 10px rgba(142,68,173,0.3);">
-      <h3 style="margin:0; font-size:18px; font-weight:500;">Total Lecturers</h3>
-      <h2 id="teacherCount" style="margin:10px 0 0 0; font-size:55px; font-weight:bold;">0</h2>
+
+    <!-- Stats (Ƙanana a jere) -->
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:20px;">
+      <div style="background:#3498db; color:white; padding:15px; border-radius:12px; text-align:center;">
+        <h3 style="margin:0; font-size:13px;">Total Students</h3>
+        <h2 id="studentCount" style="margin:8px 0 0 0; font-size:32px;">0</h2>
+      </div>
+      <div style="background:#8e44ad; color:white; padding:15px; border-radius:12px; text-align:center;">
+        <h3 style="margin:0; font-size:13px;">Total Lecturers</h3>
+        <h2 id="teacherCount" style="margin:8px 0 0 0; font-size:32px;">0</h2>
+      </div>
     </div>
   </div>
 
-  <h2>Users Waiting for Approval <span id="pendingCount">0</span></h2>
-  <div id="pendingList"></div>
-</div>
-
-  <!-- PAGE 2: STUDENTS -->
+  <!-- PAGE STUDENTS -->
   <div id="page-students" class="hidden">
     <div class="card">
       <h3>Add New Student</h3>
-      <input id="sName" placeholder="Sunan Student">
-      <input id="sEmail" placeholder="Email na Student">
+      <input id="sName" placeholder="Name of Student">
+      <input id="sEmail" placeholder="Email of Student">
       <input id="sPass" placeholder="Password">
       <label>Department</label>
       <select id="sDept">
@@ -99,7 +81,7 @@ input, textarea, select{width:100%; padding:10px; margin:8px 0; border:1px solid
     </div>
   </div>
 
-  <!-- PAGE 3: TEACHERS -->
+  <!-- PAGE LECTURERS -->
   <div id="page-teachers" class="hidden">
     <div class="card">
       <h3>Add New Lecturer</h3>
@@ -117,7 +99,7 @@ input, textarea, select{width:100%; padding:10px; margin:8px 0; border:1px solid
         <option value="MLT">Medical Laboratory</option>
         <option value="Computer Engineering">Computer Engineering</option>
       </select>
-      <button class="btn-purple" style="background:#3498db;" onclick="addUser('teacher')">Add Lecturer</button>
+      <button class="btn-purple" style="background:#3498db;" onclick="addUser('lecturer')">Add Lecturer</button>
     </div>
     <div class="card">
       <h3>List of Lecturers</h3>
@@ -125,28 +107,28 @@ input, textarea, select{width:100%; padding:10px; margin:8px 0; border:1px solid
     </div>
   </div>
 
-  <!-- PAGE 4: PROFILE - NA CIRE HOTO -->
+  <!-- PAGE PROFILE -->
   <div id="page-profile" class="hidden">
-  <div class="profile-box">
-    <div class="user-info">
-      <h3 id="userName">Admin</h3>
-      <p id="userEmail">admin@gmail.com</p>
-      <small id="userDept">Admin</small>
+    <div class="profile-box">
+      <div class="user-info">
+        <h3 id="userName">Admin</h3>
+        <p id="userEmail">admin@gmail.com</p>
+        <small id="userDept">Admin</small>
+      </div>
+      <div class="update-form">
+        <label>New Username</label>
+        <input type="text" id="newName" placeholder="Rubuta sabon suna">
+        <label>New Password</label>
+        <input type="password" id="newPass" placeholder="Rubuta sabon password">
+        <button onclick="updateProfile()">Update Profile</button>
+      </div>
+      <button class="btn-purple" style="background:#e74c3c; margin-top:20px;" onclick="logout()">Logout</button>
     </div>
-    <div class="update-form">
-      <label>New  Username</label>
-      <input type="text" id="newName" placeholder="Rubuta sabon suna">
-      <label>New  Password</label>
-      <input type="password" id="newPass" placeholder="Rubuta sabon password">
-      <button onclick="updateProfile()">Update Profile</button>
-    </div>
-    <button class="btn-purple" style="background:#e74c3c; margin-top:20px;" onclick="logout()">Logout</button>
   </div>
-  </div>
-    
+
 </div>
 
-<!-- BOTTOM NAVIGATION - NA MAYAR DA 4 -->
+<!-- BOTTOM NAV -->
 <div class="bottom-nav">
   <div class="nav-item active" onclick="showPage('home', this)">
     <span class="material-icons">home</span>Home
@@ -175,58 +157,81 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
 function showPage(page, el){
-    document.querySelectorAll('[id^="page-"]').forEach(p => p.classList.add('hidden'));
-    document.getElementById('page-' + page).classList.remove('hidden');
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    if(el) el.classList.add('active');
-    loadUsers(); 
+  document.querySelectorAll('[id^="page-"]').forEach(p => p.classList.add('hidden'));
+  document.getElementById('page-' + page).classList.remove('hidden');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  if(el) el.classList.add('active');
+  loadUsers();
 }
 
-function logout(){ localStorage.removeItem('currentUser'); window.location.href = 'index.html'; }
+function logout(){
+  localStorage.removeItem('currentUser');
+  window.location.href = 'index.html';
+}
 
 function addUser(role){
-    let name = document.getElementById(role.charAt(0)+'Name').value;
-    let email = document.getElementById(role.charAt(0)+'Email').value;
-    let password = document.getElementById(role.charAt(0)+'Pass').value;
-    let dept = document.getElementById(role.charAt(0)+'Dept').value;
-    if(name=="" || email=="" || password=="" || dept==""){ alert("Cika dukkan filaye"); return; }
-    let key = email.replace(/\./g,'_');
-    db.ref('users/' + key).set({name, email, password,dept, role, status: 'approved'})
-  .then(()=> { alert(" Added " + role + " ✅"); loadUsers(); });
+  let prefix = role === 'student' ? 's' : 't';
+  let name = document.getElementById(prefix+'Name').value.trim();
+  let email = document.getElementById(prefix+'Email').value.trim();
+  let password = document.getElementById(prefix+'Pass').value.trim();
+  let dept = document.getElementById(prefix+'Dept').value;
+
+  if(name=="" || email=="" || password=="" || dept==""){
+    alert("Fill all the field");
+    return;
+  }
+
+  let key = email.replace(/\./g,'_');
+  db.ref('users/' + key).set({
+    name, email, password, dept,
+    role: role,
+    status: 'approved'
+  }).then(()=>{
+    alert(role + " An kara ✅");
+    loadUsers();
+    document.getElementById(prefix+'Name').value = '';
+    document.getElementById(prefix+'Email').value = '';
+    document.getElementById(prefix+'Pass').value = '';
+    document.getElementById(prefix+'Dept').value = '';
+  });
 }
 
 function loadUsers(){
   let sCount=0, tCount=0, pCount=0;
   let sHtml="", tHtml="", pHtml="";
 
-  db.ref('users').on('value', snap=>{
+  db.ref('users').once('value', snap=>{
     snap.forEach(child=>{
       let u = child.val();
       let id = child.key;
 
-      if(u.status == 'pending'){
+      if(u.status === 'pending'){
         pCount++;
         pHtml += `<div class="list-item">
-  <span><b>${u.name}</b> - ${u.role} - <small>${u.dept}</small></span>
-  <span>${u.email}</span>
-  <button onclick="approveUser('${id}')" style="background:#27ae60; color:white;">Approve✔️</button>
-  <button onclick="deleteUser('${id}')" style="background:#e74c3c; color:white;">Delete❌</button>
-</div>`;
-      }
-      if(u.role == 'student' && u.status == 'approved'){
-        sCount++;
-        sHtml += `<div class="list-item">
-          <span>${u.name} - <small>${u.dept}</small></span>
-          <span>${u.email}</span>
-          <button onclick="deleteUser('${id}')" style="background:#e74c3c; color:white;">Delete</button>
+          <span><b>${u.name}</b> - ${u.role} <small>${u.dept||''}</small></span>
+          <span style="font-size:13px;">${u.email}</span>
+          <div>
+            <button onclick="approveUser('${id}')" style="background:#27ae60;">Approve ✔️</button>
+            <button onclick="deleteUser('${id}')" style="background:#e74c3c;">Delete ❌</button>
+          </div>
         </div>`;
       }
-      if(u.role == 'teacher' && u.status == 'approved'){
+
+      if(u.role === 'student' && u.status === 'approved'){
+        sCount++;
+        sHtml += `<div class="list-item">
+          <span>${u.name} <small>${u.dept||''}</small></span>
+          <span>${u.email}</span>
+          <button onclick="deleteUser('${id}')" style="background:#e74c3c;">Delete</button>
+        </div>`;
+      }
+
+      if((u.role === 'teacher' || u.role === 'lecturer') && u.status === 'approved'){
         tCount++;
         tHtml += `<div class="list-item">
-          <span>${u.name} - <small>${u.dept}</small></span>
+          <span>${u.name} <small>${u.dept||''}</small></span>
           <span>${u.email}</span>
-          <button onclick="deleteUser('${id}')" style="background:#e74c3c; color:white;">Delete</button>
+          <button onclick="deleteUser('${id}')" style="background:#e74c3c;">Delete</button>
         </div>`;
       }
     });
@@ -234,7 +239,6 @@ function loadUsers(){
     document.getElementById('studentCount').innerText = sCount;
     document.getElementById('teacherCount').innerText = tCount;
     document.getElementById('pendingCount').innerText = pCount;
-
     document.getElementById('studentList').innerHTML = sHtml || "Babu student";
     document.getElementById('teacherList').innerHTML = tHtml || "Babu lecturer";
     document.getElementById('pendingList').innerHTML = pHtml || "Babu wanda ke jira";
@@ -242,40 +246,51 @@ function loadUsers(){
 }
 
 function approveUser(id){
-  db.ref('users/'+id).update({status:'approved'}).then(()=>{ alert("An Approve!"); });
-}
-function deleteUser(id){
-  if(confirm("Tabbatar kana son gogewa?")){
-    db.ref('users/'+id).remove().then(()=>{ alert("An Gogewa!"); });
-  }
+  db.ref('users/'+id).update({status:'approved'}).then(()=>{
+    alert("Approve successful ! ✅");
+    loadUsers();
+  });
 }
 
-// NUNA BAYANIN ADMIN
-window.onload = function(){
-  let email = localStorage.getItem('userEmail');
-  if(email){
-    let key = email.replace(/\./g, '_');
-    db.ref('users/' + key).once('value', snap => {
-      let u = snap.val();
-      if(u){
-        document.getElementById('userName').innerText = u.name;
-        document.getElementById('userEmail').innerText = u.email;
-        document.getElementById('userDept').innerText = u.dept;
-      }
+function deleteUser(id){
+  if(confirm("Do you agree to delete this user?")){
+    db.ref('users/'+id).remove().then(()=>{
+      alert("An Gogewa!");
+      loadUsers();
     });
   }
 }
 
-// FUNCTION NA UPDATE
+window.onload = function(){
+  let currentUser = localStorage.getItem('currentUser');
+  if(currentUser){
+    let u = JSON.parse(currentUser);
+    document.getElementById('userName').innerText = u.name || 'Admin';
+    document.getElementById('userEmail').innerText = u.email || '';
+    document.getElementById('userDept').innerText = u.role || 'Admin';
+  }
+  loadUsers();
+}
+
 function updateProfile(){
-  let email = localStorage.getItem('userEmail');
-  let key = email.replace(/\./g, '_');
-  let newName = document.getElementById('newName').value;
-  let newPass = document.getElementById('newPass').value;
+  let currentUser = localStorage.getItem('currentUser');
+  if(!currentUser) return;
+  let u = JSON.parse(currentUser);
+  let key = u.email.replace(/\./g,'_');
+  let newName = document.getElementById('newName').value.trim();
+  let newPass = document.getElementById('newPass').value.trim();
   let updates = {};
-  if(newName!= "") updates.name = newName;
-  if(newPass!= "") updates.password = newPass;
-  db.ref('users/' + key).update(updates).then(()=>{ alert("Profile Updated ✅"); location.reload(); });
+  if(newName !== "") updates.name = newName;
+  if(newPass !== "") updates.password = newPass;
+  if(Object.keys(updates).length === 0){
+    alert("You don't change anything");
+    return;
+  }
+  db.ref('users/'+key).update(updates).then(()=>{
+    alert("Profile Updated ✅");
+    location.reload();
+  });
 }
 </script>
-</body></html>
+</body>
+</html>
