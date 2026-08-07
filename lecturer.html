@@ -43,7 +43,9 @@
           <option>Electrical Engineering</option>
           <option>Civil Engineering</option>
            <option>Medical Laboratory</option>
-            
+          <option>Accounting</option>
+           
+         
         </select>
       </div>
       <div class="form-group">
@@ -53,6 +55,8 @@
       <div class="form-group">
         <label>Question / Description</label>
         <textarea id="taskQuestion" rows="4"></textarea>
+         <label>Due Date</label>
+            <input type="date" id="taskDue">
       </div>
       <button class="btn" onclick="createTask()">Create Task</button>
     </div>
@@ -125,26 +129,7 @@
 
   function logout(){ localStorage.removeItem('currentUser'); window.location.href = 'index.html'; }
 
-  function createTask(){
-    let title = document.getElementById('taskTitle').value;
-    let question = document.getElementById('taskQuestion').value;
-    let dept = document.getElementById('taskDept').value;
-    if(title == "" || question == ""){ alert("Please fill all the fields"); return; }
-    
-    let newTaskRef = db.ref('tasks').push(); // push zai samar da unique key
-    newTaskRef.set({
-      title: title,
-      question: question,
-      department: dept,
-      createdBy: currentUser.name,
-      createdAt: Date.now()
-    }).then(()=>{
-      alert("Task Created Successfully ✓");
-      document.getElementById('taskTitle').value = "";
-      document.getElementById('taskQuestion').value = "";
-    }).catch(err => alert("DB Error: " + err.message));
-  }
-
+  
 function loadSubmissions(){
   db.ref('submissions').once('value', snap=>{
     let html = '';
@@ -174,7 +159,53 @@ function loadSubmissions(){
       });
       promises.push(p);
     });
+      function createTask(){
+    let title = document.getElementById('taskTitle').value;
+    let question = document.getElementById('taskQuestion').value;
+    let dept = document.getElementById('taskDept').value;
+    let due = document.getElementById('taskDue').value; // <- NA KARA WANNAN
+    
+    if(title == "" || question == "" || dept == "" || due == ""){ alert("Please fill all the fields"); return; } // <- NA KARA due
+    
+    let newTaskRef = db.ref('tasks').push();
+    newTaskRef.set({
+      title: title,
+      question: question,
+      department: dept,
+      due: new Date(due).getTime(), // <- NA KARA WANNAN. Muna ajiye shi as timestamp
+      createdBy: currentUser.name,
+      createdAt: Date.now()
+    }).then(()=>{
+      alert("Task Created Successfully ✓");
+      
+      sendEmailNotification(dept, title, due); // <- NA KARA due ANAN
 
+      document.getElementById('taskTitle').value = "";
+      document.getElementById('taskQuestion').value = "";
+      document.getElementById('taskDue').value = ""; // <- NA KARA WANNAN
+    }).catch(err => alert("DB Error: " + err.message));
+  }
+
+  function sendEmailNotification(dept, taskTitle, dueDate){ // <- NA KARA dueDate ANAN
+    db.ref('users').once('value', snap=>{
+      snap.forEach(userSnap=>{
+        let user = userSnap.val();
+        if(user.role == 'student' && user.dept == dept){
+          let studentEmail = userSnap.key.replace(',', '.'); 
+          
+          fetch('https://script.google.com/macros/s/NAKA_URL/exec', { 
+            method: 'POST',
+            mode: 'no-cors',
+            body: JSON.stringify({
+              to: studentEmail,
+              subject: `New Assignment: ${taskTitle}`,
+              body: `Hello ${user.name},\n\nA new task has been assigned to ${dept} department.\n\nTask: ${taskTitle}\nDue Date: ${new Date(dueDate).toLocaleDateString()}\n\nPlease login to LMS to submit before deadline.\n\n- LMS System` // <- NA KARA DUE DATE A CIKIN EMAIL
+            })
+          });
+        }
+      });
+    });
+  }
     // 3. JIRA DUK SU KARE TO MU NUNA
     Promise.all(promises).then(()=>{
       document.getElementById('submissionsList').innerHTML = html || "No submissions yet";
