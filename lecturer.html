@@ -145,16 +145,25 @@
     }).catch(err => alert("DB Error: " + err.message));
   }
 
-  function loadSubmissions(){
-    db.ref('submissions').once('value', snap=>{
-      let html = '';
-      snap.forEach(taskSnap=>{
-        let taskId = taskSnap.key;
+function loadSubmissions(){
+  db.ref('submissions').once('value', snap=>{
+    let html = '';
+    let promises = [];
+
+    snap.forEach(taskSnap=>{
+      let taskId = taskSnap.key;
+      
+      // 1. MU DAUKO TITLE NA TASK DIN DA FARKO
+      let p = db.ref('tasks/' + taskId).once('value').then(taskInfoSnap=>{
+        let taskData = taskInfoSnap.val();
+        let taskTitle = taskData ? taskData.title : taskId;
+
+        // 2. BAYAN MU SAMU TITLE, TO MU DAUKO DUK STUDENTS DINSA
         taskSnap.forEach(studentSnap=>{
           let sub = studentSnap.val();
           let studentEmailKey = studentSnap.key;
           html += `<div class="submission-card ${sub.status}">
-            <h3>${taskId}</h3>
+            <h3>${taskTitle}</h3> <!-- <- ANAN MUKA CANZA DAGA KEY ZUWA TITLE -->
             <p><b>Student:</b> ${sub.name} - ${sub.department}</p>
             <p><b>Answer:</b> ${sub.answer}</p>
             <p><b>Status:</b> ${sub.status}</p>
@@ -163,10 +172,15 @@
           </div>`;
         });
       });
+      promises.push(p);
+    });
+
+    // 3. JIRA DUK SU KARE TO MU NUNA
+    Promise.all(promises).then(()=>{
       document.getElementById('submissionsList').innerHTML = html || "No submissions yet";
     });
-  }
-
+  });
+}
   function markTask(taskId, studentEmailKey){
     let feedback = document.getElementById('feedback_' + studentEmailKey).value;
     db.ref('submissions/' + taskId + '/' + studentEmailKey).update({
