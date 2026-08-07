@@ -23,6 +23,7 @@
   .navbar { position: fixed; bottom: 0; left: 0; right: 0; background: white; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #e2e8f0; }
   .nav-item { text-align: center; color: #64748b; font-size: 12px; cursor: pointer; }
   .nav-item.active { color: #7c3aed; }
+  .task-card { background: white; border-radius: 12px; padding: 18px; margin-bottom: 15px; border-left: 5px solid #7c3aed; box-shadow: 0 2px 8px rgba(0,0,0,0.05); } /* NA KARA WANNAN */
 </style>
 </head>
 <body>
@@ -44,8 +45,6 @@
           <option>Civil Engineering</option>
            <option>Medical Laboratory</option>
           <option>Accounting</option>
-           
-         
         </select>
       </div>
       <div class="form-group">
@@ -55,11 +54,19 @@
       <div class="form-group">
         <label>Question / Description</label>
         <textarea id="taskQuestion" rows="4"></textarea>
-         <label>Due Date</label>
-            <input type="date" id="taskDue">
       </div>
+       <div class="form-group"> <!-- NA GYARA NAN -->
+         <label>Due Date</label>
+         <input type="date" id="taskDue">
+       </div>
       <button class="btn" onclick="createTask()">Create Task</button>
     </div>
+  </div>
+
+  <!-- PAGE: MY TASKS <- NA KARA WANNAN PAGE GABA DAYA -->
+  <div id="page-mytasks" class="container hidden">
+    <h2 class="section-title">My Tasks</h2>
+    <div id="tasksList">Loading...</div>
   </div>
 
   <!-- PAGE: SUBMISSIONS -->
@@ -86,8 +93,8 @@
   <!-- NAVBAR -->
   <div class="navbar">
     <div class="nav-item active" onclick="showPage('create', this)">Create</div>
+    <div class="nav-item" onclick="showPage('mytasks', this)">My Tasks</div> <!-- NA KARA BUTTON NAN -->
     <div class="nav-item" onclick="showPage('submissions', this)">Submissions</div>
-     <div id="tasksList"></div>
     <div class="nav-item" onclick="showPage('profile', this)">Profile</div>
   </div>
 
@@ -95,16 +102,15 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 <script>
-  // SAKA CONFIG DIN KA ANAN DAI-DAI DA NA STUDENT
   const firebaseConfig = {
-  apiKey: "AIzaSyA1fy2BvuM-mB...", // Copy daga screenshot
-  authDomain: "student-task-something.firebaseapp.com", // Cika shi
-  databaseURL: "https://student-task-system-default-rtdb.firebaseio.com/", // Wannan kana dashi
-  projectId: "student-task-sy...", // Cika shi
-  storageBucket: "student-tas...", // Cika shi
-  messagingSenderId: "1678603...", // Cika shi
-  appId: "1:167860350961:web:...", // Cika shi
-  measurementId: "G-98M6ZGPNX..." // Cika shi
+  apiKey: "AIzaSyA1fy2BvuM-mB...",
+  authDomain: "student-task-something.firebaseapp.com",
+  databaseURL: "https://student-task-system-default-rtdb.firebaseio.com/",
+  projectId: "student-task-sy...",
+  storageBucket: "student-tas...",
+  messagingSenderId: "1678603...",
+  appId: "1:167860350961:web:...",
+  measurementId: "G-98M6ZGPNX..."
 };
   firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
@@ -125,160 +131,154 @@
       document.getElementById('lName').value = currentUser.name;
       document.getElementById('pDept').innerText = currentUser.dept; 
     }
+    if(page == 'mytasks'){ loadTasks(); } // <- NA KARA WANNAN
     if(page == 'submissions'){ loadSubmissions(); }
   }
 
   function logout(){ localStorage.removeItem('currentUser'); window.location.href = 'index.html'; }
 
-  
-function loadSubmissions(){
-  db.ref('submissions').once('value', snap=>{
-    let html = '';
-    let promises = [];
-
-    snap.forEach(taskSnap=>{
-      let taskId = taskSnap.key;
-      
-      // 1. MU DAUKO TITLE NA TASK DIN DA FARKO
-      let p = db.ref('tasks/' + taskId).once('value').then(taskInfoSnap=>{
-        let taskData = taskInfoSnap.val();
-        let taskTitle = taskData ? taskData.title : taskId;
-
-        // 2. BAYAN MU SAMU TITLE, TO MU DAUKO DUK STUDENTS DINSA
-        taskSnap.forEach(studentSnap=>{
-          let sub = studentSnap.val();
-          let studentEmailKey = studentSnap.key;
-          html += `<div class="submission-card ${sub.status}">
-            <h3>${taskTitle}</h3> <!-- <- ANAN MUKA CANZA DAGA KEY ZUWA TITLE -->
-            <p><b>Student:</b> ${sub.name} - ${sub.department}</p>
-            <p><b>Answer:</b> ${sub.answer}</p>
-            <p><b>Status:</b> ${sub.status}</p>
-            <textarea id="feedback_${studentEmailKey}" placeholder="Write feedback...">${sub.feedback || ''}</textarea>
-            <button class="btn btn-mark" onclick="markTask('${taskId}', '${studentEmailKey}')">Mark & Send Feedback</button>
-          </div>`;
-        });
-      });
-      promises.push(p);
-    });
-      function createTask(){
+  function createTask(){
     let title = document.getElementById('taskTitle').value;
     let question = document.getElementById('taskQuestion').value;
     let dept = document.getElementById('taskDept').value;
-    let due = document.getElementById('taskDue').value; // <- NA KARA WANNAN
+    let due = document.getElementById('taskDue').value;
     
-    if(title == "" || question == "" || dept == "" || due == ""){ alert("Please fill all the fields"); return; } // <- NA KARA due
+    if(title == "" || question == "" || dept == "" || due == ""){ alert("Please fill all the fields"); return; }
     
     let newTaskRef = db.ref('tasks').push();
     newTaskRef.set({
       title: title,
       question: question,
       department: dept,
-      due: new Date(due).getTime(), // <- NA KARA WANNAN. Muna ajiye shi as timestamp
-      createdBy: currentUser.email, // <- yi haka
+      due: new Date(due).getTime(),
+      createdBy: currentUser.email, // <- MUHIMMI: Dole ne email
       createdAt: Date.now()
     }).then(()=>{
       alert("Task Created Successfully ✓");
-      
-      sendEmailNotification(dept, title, due); // <- NA KARA due ANAN
-
+      sendEmailNotification(dept, title, due);
       document.getElementById('taskTitle').value = "";
       document.getElementById('taskQuestion').value = "";
-      document.getElementById('taskDue').value = ""; // <- NA KARA WANNAN
+      document.getElementById('taskDue').value = "";
     }).catch(err => alert("DB Error: " + err.message));
   }
 
-  function sendEmailNotification(dept, taskTitle, dueDate){ // <- NA KARA dueDate ANAN
+  function sendEmailNotification(dept, taskTitle, dueDate){
     db.ref('users').once('value', snap=>{
       snap.forEach(userSnap=>{
         let user = userSnap.val();
         if(user.role == 'student' && user.dept == dept){
           let studentEmail = userSnap.key.replace(',', '.'); 
-          
           fetch('https://script.google.com/macros/s/NAKA_URL/exec', { 
             method: 'POST',
             mode: 'no-cors',
             body: JSON.stringify({
               to: studentEmail,
               subject: `New Assignment: ${taskTitle}`,
-              body: `Hello ${user.name},\n\nA new task has been assigned to ${dept} department.\n\nTask: ${taskTitle}\nDue Date: ${new Date(dueDate).toLocaleDateString()}\n\nPlease login to LMS to submit before deadline.\n\n- LMS System` // <- NA KARA DUE DATE A CIKIN EMAIL
+              body: `Hello ${user.name},\n\nA new task has been assigned to ${dept} department.\n\nTask: ${taskTitle}\nDue Date: ${new Date(dueDate).toLocaleDateString()}\n\nPlease login to LMS to submit before deadline.\n\n- LMS System`
             })
           });
         }
       });
     });
   }
-    // 3. JIRA DUK SU KARE TO MU NUNA
-    Promise.all(promises).then(()=>{
-      document.getElementById('submissionsList').innerHTML = html || "No submissions yet";
-    });
-  });
-}
-function loadTasks(){
-  let container = document.getElementById('tasksList');
-  container.innerHTML = "Loading tasks...";
-  
-  db.ref('tasks').orderByChild('createdBy').equalTo(currentUser.email).on('value', snap=>{
-    container.innerHTML = "";
-    
-    if(!snap.exists()){
-      container.innerHTML = "<p style='text-align:center; color:gray'>No tasks created yet</p>";
-      return;
-    }
-    
-    snap.forEach(taskSnap=>{
-      let task = taskSnap.val();
-      let taskId = taskSnap.key;
-      
-      container.innerHTML += `
-        <div style="border:1px solid #ddd; padding:15px; margin:10px 0; border-radius:8px; background:#fff">
-          <h3>${task.title}</h3>
-          <p><b>Department:</b> ${task.department}</p>
-          <p><b>Due Date:</b> ${new Date(task.due).toLocaleDateString()}</p>
-          <p><b>Question:</b> ${task.question}</p>
-          
-          <div style="margin-top:10px">
-            <button onclick="viewSubmissions('${taskId}')" style="background:blue; color:white; border:none; padding:8px 12px; border-radius:5px; cursor:pointer">View Submissions</button>
-            <button onclick="deleteTask('${taskId}')" style="background:red; color:white; border:none; padding:8px 12px; border-radius:5px; cursor:pointer; margin-left:10px">Delete</button>
-          </div>
-        </div>
-      `;
-    });
-  });
-}
-   // 1. FUNCTION DIN DELETE
-function deleteTask(taskId){
-  if(confirm("Are you sure you want to delete this task?")){
-    db.ref('tasks/' + taskId).remove().then(()=>{
-      alert("Task Deleted ✓");
-    }).catch(err => alert("Error: " + err.message));
-  }
-}
 
-// 2. FUNCTION DIN DUBA SUBMISSIONS
-function viewSubmissions(taskId){
-  // Zaka iya turashi zuwa wata page ko ka nuna div
-  // Na fi son ka bude wata section
-  window.location.hash = "#submissions";
-  loadSubmissions(taskId); // za mu tura taskId domin mu filter
-   }
-  function markSubmission(subId){
-  let score = document.getElementById('score-' + subId).value;
-  if(score == ""){ alert("Enter score"); return; }
-  
-  db.ref('submissions/' + subId).update({
-    score: score,
-    status: "marked",
-    markedAt: Date.now()
-  }).then(()=>{
-    alert("Marked Successfully ✓");
-    loadSubmissions(); // reload don ya boye input din
-  });
-}
+  // FUNCTION NA NUNA TASKS NA WANNAN LECTURER KAWAI
+  function loadTasks(){
+    let container = document.getElementById('tasksList');
+    container.innerHTML = "Loading tasks...";
+    
+    db.ref('tasks').orderByChild('createdBy').equalTo(currentUser.email).on('value', snap=>{
+      container.innerHTML = "";
+      
+      if(!snap.exists()){
+        container.innerHTML = "<p style='text-align:center; color:gray'>No tasks created yet</p>";
+        return;
+      }
+      
+      snap.forEach(taskSnap=>{
+        let task = taskSnap.val();
+        let taskId = taskSnap.key;
+        
+        container.innerHTML += `
+          <div class="task-card">
+            <h3>${task.title}</h3>
+            <p><b>Department:</b> ${task.department}</p>
+            <p><b>Due Date:</b> ${new Date(task.due).toLocaleDateString()}</p>
+            <p><b>Question:</b> ${task.question}</p>
+            <div style="margin-top:10px">
+              <button onclick="viewSubmissions('${taskId}')" class="btn btn-mark" style="width:auto; padding:8px 12px">View Submissions</button>
+              <button onclick="deleteTask('${taskId}')" class="btn btn-logout" style="width:auto; padding:8px 12px">Delete</button>
+            </div>
+          </div>
+        `;
+      });
+    });
+  }
+
+  function deleteTask(taskId){
+    if(confirm("Are you sure you want to delete this task?")){
+      db.ref('tasks/' + taskId).remove().then(()=>{
+        alert("Task Deleted ✓");
+      }).catch(err => alert("Error: " + err.message));
+    }
+  }
+
+  function viewSubmissions(taskId){
+    showPage('submissions'); // mu tafi page din submissions
+    loadSubmissions(taskId); // mu tura taskId din
+  }
+
+  // NA GYARA WANNAN GABADAYA DON YA NUNA TASKS NA WANNAN LECTURER KAWAI
+  function loadSubmissions(filterTaskId = null){
+    db.ref('tasks').orderByChild('createdBy').equalTo(currentUser.email).once('value', tasksSnap=>{ // <- NA KARA FILTER NAN
+      let html = '';
+      let promises = [];
+
+      tasksSnap.forEach(taskSnap=>{ // muna zagaya tasks na wannan lecturer kawai
+        let taskId = taskSnap.key;
+        let taskData = taskSnap.val();
+        
+        if(filterTaskId && filterTaskId != taskId) return; // idan an zabi task 1 kawai
+
+        let p = db.ref('submissions/' + taskId).once('value').then(subSnap=>{
+          subSnap.forEach(studentSnap=>{
+            let sub = studentSnap.val();
+            let studentEmailKey = studentSnap.key;
+            html += `<div class="submission-card ${sub.status}">
+              <h3>${taskData.title}</h3>
+              <p><b>Student:</b> ${sub.name} - ${sub.department}</p>
+              <p><b>Answer:</b> ${sub.answer}</p>
+              <p><b>Status:</b> ${sub.status}</p>
+              <textarea id="feedback_${studentEmailKey}" placeholder="Write feedback...">${sub.feedback || ''}</textarea>
+              <button class="btn btn-mark" onclick="markTask('${taskId}', '${studentEmailKey}')">Mark & Send Feedback</button>
+            </div>`;
+          });
+        });
+        promises.push(p);
+      });
+      
+      Promise.all(promises).then(()=>{
+        document.getElementById('submissionsList').innerHTML = html || "No submissions yet";
+      });
+    });
+  }
+
+  function markTask(taskId, studentEmailKey){ // NA GYARA SUNA
+    let feedback = document.getElementById('feedback_' + studentEmailKey).value;
+    db.ref('submissions/' + taskId + '/' + studentEmailKey).update({
+      feedback: feedback,
+      status: "marked",
+      markedAt: Date.now()
+    }).then(()=>{
+      alert("Marked Successfully ✓");
+      loadSubmissions();
+    });
+  }
 
   function updateProfile(){
     let newName = document.getElementById('lName').value;
-    let studentEmail = currentUser.email.replace(/\./g, ',');
-   db.ref('users/' + studentEmail).update({ name: newName }).then(()=>{
+    let userEmail = currentUser.email.replace(/\./g, ',');
+   db.ref('users/' + userEmail).update({ name: newName }).then(()=>{
       currentUser.name = newName;
       localStorage.setItem('currentUser', JSON.stringify(currentUser));
       alert("Profile Updated!");
