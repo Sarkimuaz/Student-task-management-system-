@@ -121,7 +121,7 @@ const db = firebase.database();
   if(!currentUser){ window.location.href = 'login.html'; }
   
   let studentEmail = currentUser.email.replace(/\./g, ',');
-  let studentDept = currentUser.department; // MU DAUKO DEPARTMENT
+  let studentDept = currentUser.dept;
 
   function showPage(page, el){
     document.querySelectorAll('[id^="page-"]').forEach(p => p.classList.add('hidden'));
@@ -214,7 +214,7 @@ const db = firebase.database();
   
   function updateProfile(){
     let newName = document.getElementById('sName').value;
-    db.ref('students/' + studentEmail).update({ name: newName }).then(()=>{
+     db.ref('users/' + studentEmail).update({ name: newName }).then(()=>{
       currentUser.name = newName;
       localStorage.setItem('currentUser', JSON.stringify(currentUser));
       alert("Profile Updated!");
