@@ -212,16 +212,19 @@ function loadSubmissions(){
     });
   });
 }
-  function markTask(taskId, studentEmailKey){
-    let feedback = document.getElementById('feedback_' + studentEmailKey).value;
-    db.ref('submissions/' + taskId + '/' + studentEmailKey).update({
-      status: "marked",
-      feedback: feedback
-    }).then(()=>{
-      alert("Marked Successfully!");
-      loadSubmissions();
-    });
-  }
+  function markSubmission(subId){
+  let score = document.getElementById('score-' + subId).value;
+  if(score == ""){ alert("Enter score"); return; }
+  
+  db.ref('submissions/' + subId).update({
+    score: score,
+    status: "marked",
+    markedAt: Date.now()
+  }).then(()=>{
+    alert("Marked Successfully ✓");
+    loadSubmissions(); // reload don ya boye input din
+  });
+}
 
   function updateProfile(){
     let newName = document.getElementById('lName').value;
