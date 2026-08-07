@@ -195,22 +195,39 @@ const db = firebase.database();
   }
 
   function loadMyTasksStatus(){
-    db.ref('submissions').once('value', snap=>{
-      let html = '';
-      snap.forEach(taskSnap=>{
-        let taskId = taskSnap.key;
-        if(taskSnap.hasChild(studentEmail)){
-          let sub = taskSnap.child(studentEmail).val();
+  db.ref('submissions').once('value', snap=>{
+    let html = '';
+    let promises = []; // don mu jira mu dauko title
+
+    snap.forEach(taskSnap=>{
+      let taskId = taskSnap.key;
+      if(taskSnap.hasChild(studentEmail)){
+        let sub = taskSnap.child(studentEmail).val();
+        
+        // 1. MU DAUKO TITLE DIN TASK DIN
+        let p = db.ref('tasks/' + taskId).once('value').then(taskInfoSnap=>{
+          let taskData = taskInfoSnap.val();
+          let taskTitle = taskData ? taskData.title : taskId; // idan babu title to a nuna key
+
           html += `<div class="task-card ${sub.status}">
-            <div class="task-header"><h3>${taskId}</h3><span class="status ${sub.status}">${sub.status}</span></div>
+            <div class="task-header">
+              <h3>${taskTitle}</h3> <!-- <- ANAN MUKA CANZA -->
+              <span class="status ${sub.status}">${sub.status}</span>
+            </div>
             <p><b>Your Answer:</b> ${sub.answer}</p>
             <p><b>Feedback:</b> ${sub.feedback || 'No feedback yet'}</p>
           </div>`;
-        }
-      });
+        });
+        promises.push(p);
+      }
+    });
+
+    // 2. BARI DUK YA DAUKO TO MU NUNA
+    Promise.all(promises).then(()=>{
       document.getElementById('myTasksList').innerHTML = html || "No submissions yet";
     });
-  }
+  });
+}
   
   function updateProfile(){
     let newName = document.getElementById('sName').value;
