@@ -87,6 +87,7 @@
   <div class="navbar">
     <div class="nav-item active" onclick="showPage('create', this)">Create</div>
     <div class="nav-item" onclick="showPage('submissions', this)">Submissions</div>
+     <div id="tasksList"></div>
     <div class="nav-item" onclick="showPage('profile', this)">Profile</div>
   </div>
 
@@ -173,7 +174,7 @@ function loadSubmissions(){
       question: question,
       department: dept,
       due: new Date(due).getTime(), // <- NA KARA WANNAN. Muna ajiye shi as timestamp
-      createdBy: currentUser.name,
+      createdBy: currentUser.email, // <- yi haka
       createdAt: Date.now()
     }).then(()=>{
       alert("Task Created Successfully ✓");
@@ -212,6 +213,54 @@ function loadSubmissions(){
     });
   });
 }
+function loadTasks(){
+  let container = document.getElementById('tasksList');
+  container.innerHTML = "Loading tasks...";
+  
+  db.ref('tasks').orderByChild('createdBy').equalTo(currentUser.email).on('value', snap=>{
+    container.innerHTML = "";
+    
+    if(!snap.exists()){
+      container.innerHTML = "<p style='text-align:center; color:gray'>No tasks created yet</p>";
+      return;
+    }
+    
+    snap.forEach(taskSnap=>{
+      let task = taskSnap.val();
+      let taskId = taskSnap.key;
+      
+      container.innerHTML += `
+        <div style="border:1px solid #ddd; padding:15px; margin:10px 0; border-radius:8px; background:#fff">
+          <h3>${task.title}</h3>
+          <p><b>Department:</b> ${task.department}</p>
+          <p><b>Due Date:</b> ${new Date(task.due).toLocaleDateString()}</p>
+          <p><b>Question:</b> ${task.question}</p>
+          
+          <div style="margin-top:10px">
+            <button onclick="viewSubmissions('${taskId}')" style="background:blue; color:white; border:none; padding:8px 12px; border-radius:5px; cursor:pointer">View Submissions</button>
+            <button onclick="deleteTask('${taskId}')" style="background:red; color:white; border:none; padding:8px 12px; border-radius:5px; cursor:pointer; margin-left:10px">Delete</button>
+          </div>
+        </div>
+      `;
+    });
+  });
+}
+   // 1. FUNCTION DIN DELETE
+function deleteTask(taskId){
+  if(confirm("Are you sure you want to delete this task?")){
+    db.ref('tasks/' + taskId).remove().then(()=>{
+      alert("Task Deleted ✓");
+    }).catch(err => alert("Error: " + err.message));
+  }
+}
+
+// 2. FUNCTION DIN DUBA SUBMISSIONS
+function viewSubmissions(taskId){
+  // Zaka iya turashi zuwa wata page ko ka nuna div
+  // Na fi son ka bude wata section
+  window.location.hash = "#submissions";
+  loadSubmissions(taskId); // za mu tura taskId domin mu filter
+   }
   function markSubmission(subId){
   let score = document.getElementById('score-' + subId).value;
   if(score == ""){ alert("Enter score"); return; }
