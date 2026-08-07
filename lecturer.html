@@ -70,6 +70,7 @@
     <div class="form-box">
       <p><strong>Name:</strong> <span id="pName"></span></p>
       <p><strong>Email:</strong> <span id="pEmail"></span></p>
+       <p><strong>Department:</strong> <span id="pDept"></span></p>
       <hr style="margin: 15px 0;">
       <div class="form-group"><label>New Name</label><input type="text" id="lName"></div>
       <div class="form-group"><label>New Password</label><input type="password" id="lPassword"></div>
@@ -91,11 +92,15 @@
 <script>
   // SAKA CONFIG DIN KA ANAN DAI-DAI DA NA STUDENT
   const firebaseConfig = {
-    apiKey: "SAKA_NAKA_ANAN",
-    authDomain: "student-task-system.firebaseapp.com", 
-    databaseURL: "https://student-task-system-default-rtdb.firebaseio.com/",
-    projectId: "student-task-system"
-  };
+  apiKey: "AIzaSyA1fy2BvuM-mB...", // Copy daga screenshot
+  authDomain: "student-task-something.firebaseapp.com", // Cika shi
+  databaseURL: "https://student-task-system-default-rtdb.firebaseio.com/", // Wannan kana dashi
+  projectId: "student-task-sy...", // Cika shi
+  storageBucket: "student-tas...", // Cika shi
+  messagingSenderId: "1678603...", // Cika shi
+  appId: "1:167860350961:web:...", // Cika shi
+  measurementId: "G-98M6ZGPNX..." // Cika shi
+};
   firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
   
@@ -113,6 +118,7 @@
       document.getElementById('pName').innerText = currentUser.name;
       document.getElementById('pEmail').innerText = currentUser.email;
       document.getElementById('lName').value = currentUser.name;
+      document.getElementById('pDept').innerText = currentUser.dept; 
     }
     if(page == 'submissions'){ loadSubmissions(); }
   }
@@ -175,7 +181,7 @@
   function updateProfile(){
     let newName = document.getElementById('lName').value;
     let studentEmail = currentUser.email.replace(/\./g, ',');
-    db.ref('lecturers/' + studentEmail).update({ name: newName }).then(()=>{
+   db.ref('users/' + studentEmail).update({ name: newName }).then(()=>{
       currentUser.name = newName;
       localStorage.setItem('currentUser', JSON.stringify(currentUser));
       alert("Profile Updated!");
