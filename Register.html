@@ -1,92 +1,205 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Register - Task System</title>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Register - Task System</title>
 <style>
-body{font-family:'Segoe UI'; background:linear-gradient(135deg, #3498db, #8e44ad); display:flex; justify-content:center; align-items:center; height:100vh; margin:0;}
-.box{background:white; padding:30px; border-radius:15px; width:90%; max-width:400px; box-shadow:0 4px 20px rgba(0,0,0,0.3);}
-h2{text-align:center; color:#27ae60;}
-input, select{width:100%; padding:12px; margin:10px 0; border:1px solid #ddd; border-radius:8px; box-sizing:border-box;}
-button{width:100%; padding:12px; background:#27ae60; color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;}
-a{text-align:center; display:block; margin-top:10px; color:#3498db; text-decoration:none;}
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  }
+
+  body {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+  }
+
+  .box {
+    background: rgba(255, 255, 255, 0.97);
+    width: 100%;
+    max-width: 420px;
+    padding: 40px 32px;
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.18);
+  }
+
+  h2 {
+    text-align: center;
+    color: #2d3748;
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 28px;
+  }
+
+  .form-group {
+    margin-bottom: 18px;
+  }
+
+  label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: #4a5568;
+    margin-bottom: 6px;
+  }
+
+  input, select {
+    width: 100%;
+    padding: 13px 16px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 12px;
+    font-size: 15px;
+    background: #f8fafc;
+    transition: all 0.25s ease;
+    outline: none;
+  }
+
+  input:focus, select:focus {
+    border-color: #667eea;
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+  }
+
+  button {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    margin-top: 8px;
+  }
+
+  button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+  }
+
+  .login-link {
+    text-align: center;
+    margin-top: 22px;
+    font-size: 14px;
+    color: #718096;
+  }
+
+  .login-link a {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  .login-link a:hover {
+    text-decoration: underline;
+  }
 </style>
 </head>
 <body>
-<div class="box">
-    <h2>Register</h2>
-    <input type="text" id="name" placeholder="Full Name">
-    <input type="email" id="email" placeholder="Email">
-    <input type="password" id="password" placeholder="Password">
-  <label>Role</label>
-<select id="role">
-  <option value="student">Student</option>
-  <option value="lecturer">Lecturer</option>   <!-- An canza daga teacher zuwa lecturer -->
-</select>
+  <div class="box">
+    <h2>Create Account</h2>
 
-<label>Department</label>
-<select id="dept">
-  <option value="">-- Choose Your Department --</option>
-     <option>Computer Science</option>
-          <option>Computer Engineering</option>
-          <option>Electrical Engineering</option>
-          <option>Civil Engineering</option>
-           <option>Medical Laboratory</option>
-          <option>Accounting</option>
-           
-</select>
+    <div class="form-group">
+      <label>Full Name</label>
+      <input type="text" id="name" placeholder="Enter your full name">
+    </div>
+
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" id="email" placeholder="Enter your email">
+    </div>
+
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="password" placeholder="Create a password">
+    </div>
+
+    <div class="form-group">
+      <label>Role</label>
+      <select id="role">
+        <option value="student">Student</option>
+        <option value="lecturer">Lecturer</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Department</label>
+      <select id="dept">
+        <option value="">-- Choose Your Department --</option>
+        <option>Computer Science</option>
+        <option>Computer Engineering</option>
+        <option>Electrical Engineering</option>
+        <option>Civil Engineering</option>
+        <option>Medical Laboratory</option>
+        <option>Accounting</option>
+      </select>
+    </div>
+
     <button onclick="register()">Register</button>
-    <a href="index.html">Already have account? Login</a>
-</div>
 
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-<script>
+    <div class="login-link">
+      Already have an account? <a href="index.html">Login</a>
+    </div>
+  </div>
 
-const firebaseConfig = {
-  apiKey: "AIzaSyA1fy2BvuM-mBDM5fuZID9NbkMsx-6ie0U",
-  authDomain: "student-task-system.firebaseapp.com",
-  databaseURL: "https://student-task-system-default-rtdb.firebaseio.com",
-  projectId: "student-task-system",
-  storageBucket: "student-task-system.firebasestorage.app",
-  messagingSenderId: "167860350961",
-  appId: "1:167860350961:web:c04e0efbb0c06e2ef31e50"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyA1fy2BvuM-mBDM5fuZID9NbkMsx-6ie0U",
+      authDomain: "student-task-system.firebaseapp.com",
+      databaseURL: "https://student-task-system-default-rtdb.firebaseio.com",
+      projectId: "student-task-system",
+      storageBucket: "student-task-system.firebasestorage.app",
+      messagingSenderId: "167860350961",
+      appId: "1:167860350961:web:c04e0efbb0c06e2ef31e50"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
 
-function register(){ // <- Na gyara nan
-  let name = document.getElementById('name').value.trim();
-  let email = document.getElementById('email').value.trim();
-  let password = document.getElementById('password').value.trim();
-  let role = document.getElementById('role').value;
-  let dept = document.getElementById('dept').value;
-  let data={name,email,password,role, approved: false}; // kara approved: false
-if(role=='student')data.department=dept;
+    function register() {
+      let name = document.getElementById('name').value.trim();
+      let email = document.getElementById('email').value.trim();
+      let password = document.getElementById('password').value.trim();
+      let role = document.getElementById('role').value;
+      let dept = document.getElementById('dept').value;
 
-  if(name=="" || email=="" || password=="" || role=="" || dept==""){
-    alert("Fill all the fields "); 
-    return; 
-  }
+      if (name === "" || email === "" || password === "" || dept === "") {
+        alert("Please fill all required fields");
+        return;
+      }
 
-  let key = email.replace(/\./g, '_');
+      let key = email.replace(/\./g, '_');
 
-  db.ref('users/' + key).set({
-    name, 
-    email, 
-    password, 
-    role, 
-    dept,
-    status: 'pending'
-  })
-  .then(()=>{ 
-    alert("Registration Successful,Just Wait for Admin to approve"); 
-    window.location.href = 'index.html'; 
-  })
-  .catch((error)=>{
-    alert("Error: " + error.message);
-  });
-} // <- kuma nan
-</script>
+      let userData = {
+        name,
+        email,
+        password,
+        role,
+        dept,
+        department: dept,
+        status: 'pending',
+        approved: false
+      };
+
+      db.ref('users/' + key).set(userData)
+        .then(() => {
+          alert("Registration Successful! Please wait for Admin approval.");
+          window.location.href = 'index.html';
+        })
+        .catch((error) => {
+          alert("Error: " + error.message);
+        });
+    }
+  </script>
 </body>
 </html>
