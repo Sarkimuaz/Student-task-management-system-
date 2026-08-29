@@ -23,7 +23,9 @@
   .navbar { position: fixed; bottom: 0; left: 0; right: 0; background: white; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #e2e8f0; }
   .nav-item { text-align: center; color: #64748b; font-size: 12px; cursor: pointer; }
   .nav-item.active { color: #7c3aed; }
-  .task-card { background: white; border-radius: 12px; padding: 18px; margin-bottom: 15px; border-left: 5px solid #7c3aed; box-shadow: 0 2px 8px rgba(0,0,0,0.05); } /* NA KARA WANNAN */
+  .task-card { background: white; border-radius: 12px; padding: 18px; margin-bottom: 15px; border-left: 5px solid #7c3aed; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+  .expired-badge { background: #ef4444; color: white; padding: 3px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; }
+  .active-badge { background: #10b981; color: white; padding: 3px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; }
 </style>
 </head>
 <body>
@@ -48,6 +50,10 @@
         </select>
       </div>
       <div class="form-group">
+        <label>Course</label>
+        <input type="text" id="taskCourse" placeholder="E.g: CSC 101 - Introduction to Programming">
+      </div>
+      <div class="form-group">
         <label>Task Title</label>
         <input type="text" id="taskTitle" placeholder="E.g: JAVA Assignment 1">
       </div>
@@ -55,7 +61,7 @@
         <label>Question / Description</label>
         <textarea id="taskQuestion" rows="4"></textarea>
       </div>
-       <div class="form-group"> <!-- NA GYARA NAN -->
+       <div class="form-group">
          <label>Due Date</label>
          <input type="date" id="taskDue">
        </div>
@@ -63,7 +69,7 @@
     </div>
   </div>
 
-  <!-- PAGE: MY TASKS <- NA KARA WANNAN PAGE GABA DAYA -->
+  <!-- PAGE: MY TASKS -->
   <div id="page-mytasks" class="container hidden">
     <h2 class="section-title">My Tasks</h2>
     <div id="tasksList">Loading...</div>
@@ -93,7 +99,7 @@
   <!-- NAVBAR -->
   <div class="navbar">
     <div class="nav-item active" onclick="showPage('create', this)">Create</div>
-    <div class="nav-item" onclick="showPage('mytasks', this)">My Tasks</div> <!-- NA KARA BUTTON NAN -->
+    <div class="nav-item" onclick="showPage('mytasks', this)">My Tasks</div>
     <div class="nav-item" onclick="showPage('submissions', this)">Submissions</div>
     <div class="nav-item" onclick="showPage('profile', this)">Profile</div>
   </div>
@@ -131,7 +137,7 @@
       document.getElementById('lName').value = currentUser.name;
       document.getElementById('pDept').innerText = currentUser.dept; 
     }
-    if(page == 'mytasks'){ loadTasks(); } // <- NA KARA WANNAN
+    if(page == 'mytasks'){ loadTasks(); }
     if(page == 'submissions'){ loadSubmissions(); }
   }
 
@@ -141,41 +147,120 @@
     let title = document.getElementById('taskTitle').value;
     let question = document.getElementById('taskQuestion').value;
     let dept = document.getElementById('taskDept').value;
+    let course = document.getElementById('taskCourse').value;
     let due = document.getElementById('taskDue').value;
     
-    if(title == "" || question == "" || dept == "" || due == ""){ alert("Please fill all the fields"); return; }
+    if(title == "" || question == "" || dept == "" || due == "" || course == ""){ 
+      alert("Please fill all the fields"); 
+      return; 
+    }
     
     let newTaskRef = db.ref('tasks').push();
     newTaskRef.set({
       title: title,
       question: question,
       department: dept,
+      course: course,
       due: new Date(due).getTime(),
-      createdBy: currentUser.email, // <- MUHIMMI: Dole ne email
-      createdAt: Date.now()
+      createdBy: currentUser.email,
+      createdAt: Date.now(),
+      status: 'active',
+      reminderSent: false
     }).then(()=>{
       alert("Task Created Successfully ✓");
-      sendEmailNotification(dept, title, due);
+      sendEmailNotification(dept, course, title, due);
       document.getElementById('taskTitle').value = "";
       document.getElementById('taskQuestion').value = "";
       document.getElementById('taskDue').value = "";
+      document.getElementById('taskCourse').value = "";
     }).catch(err => alert("DB Error: " + err.message));
   }
 
-  function sendEmailNotification(dept, taskTitle, dueDate){
+  function sendEmailNotification(dept, course, taskTitle, dueDate){
     db.ref('users').once('value', snap=>{
       snap.forEach(userSnap=>{
         let user = userSnap.val();
         if(user.role == 'student' && user.dept == dept){
-          let studentEmail = userSnap.key.replace(',', '.'); 
+          let studentEmail = userSnap.key.replace(/,/g, '.'); 
+          let studentKey = userSnap.key;
+
+          // Email
           fetch('https://script.google.com/macros/s/NAKA_URL/exec', { 
             method: 'POST',
             mode: 'no-cors',
             body: JSON.stringify({
               to: studentEmail,
-              subject: `New Assignment: ${taskTitle}`,
-              body: `Hello ${user.name},\n\nA new task has been assigned to ${dept} department.\n\nTask: ${taskTitle}\nDue Date: ${new Date(dueDate).toLocaleDateString()}\n\nPlease login to LMS to submit before deadline.\n\n- LMS System`
+              subject: `New Assignment: ${taskTitle} (${course})`,
+              body: `Hello ${user.name},\n\nA new task has been assigned.\n\nCourse: ${course}\nDepartment: ${dept}\nTask: ${taskTitle}\nDue Date: ${new Date(dueDate).toLocaleDateString()}\n\nPlease login to LMS to submit before deadline.\n\n- LMS System`
             })
+          });
+
+          // In-app Notification
+          db.ref('notifications/' + studentKey).push({
+            title: "New Task Assigned",
+            message: `New task "${taskTitle}" for course ${course} has been assigned. Due: ${new Date(dueDate).toLocaleDateString()}`,
+            course: course,
+            type: "new_task",
+            createdAt: Date.now(),
+            read: false
+          });
+        }
+      });
+    });
+  }
+
+  // 24 Hours Reminder + Auto Expire
+  function checkRemindersAndExpire(){
+    db.ref('tasks').orderByChild('createdBy').equalTo(currentUser.email).once('value', snap=>{
+      if(!snap.exists()) return;
+
+      snap.forEach(taskSnap=>{
+        let task = taskSnap.val();
+        let taskId = taskSnap.key;
+        let now = Date.now();
+        let timeLeft = task.due - now;
+
+        // Auto Expire
+        if(now > task.due && task.status !== 'expired'){
+          db.ref('tasks/' + taskId).update({ status: 'expired' });
+        }
+
+        // 24 Hours Reminder (only once)
+        if(timeLeft > 0 && timeLeft <= 24 * 60 * 60 * 1000 && !task.reminderSent){
+          send24HourReminder(task.department, task.course || task.department, task.title, task.due);
+          db.ref('tasks/' + taskId).update({ reminderSent: true });
+        }
+      });
+    });
+  }
+
+  function send24HourReminder(dept, course, taskTitle, dueDate){
+    db.ref('users').once('value', snap=>{
+      snap.forEach(userSnap=>{
+        let user = userSnap.val();
+        if(user.role == 'student' && user.dept == dept){
+          let studentEmail = userSnap.key.replace(/,/g, '.');
+          let studentKey = userSnap.key;
+
+          // Email Reminder
+          fetch('https://script.google.com/macros/s/NAKA_URL/exec', { 
+            method: 'POST',
+            mode: 'no-cors',
+            body: JSON.stringify({
+              to: studentEmail,
+              subject: `Reminder: ${taskTitle} due in 24 hours (${course})`,
+              body: `Hello ${user.name},\n\nThis is a reminder that your task is due in less than 24 hours.\n\nCourse: ${course}\nTask: ${taskTitle}\nDue Date: ${new Date(dueDate).toLocaleDateString()}\n\nPlease submit before the deadline.\n\n- LMS System`
+            })
+          });
+
+          // In-app Notification
+          db.ref('notifications/' + studentKey).push({
+            title: "Task Due Soon (24 Hours Left)",
+            message: `Your task "${taskTitle}" for course ${course} is due in less than 24 hours!`,
+            course: course,
+            type: "reminder_24h",
+            createdAt: Date.now(),
+            read: false
           });
         }
       });
@@ -187,6 +272,9 @@
     let container = document.getElementById('tasksList');
     container.innerHTML = "Loading tasks...";
     
+    // Check expire + reminder every time we open My Tasks
+    checkRemindersAndExpire();
+
     db.ref('tasks').orderByChild('createdBy').equalTo(currentUser.email).on('value', snap=>{
       container.innerHTML = "";
       
@@ -198,10 +286,15 @@
       snap.forEach(taskSnap=>{
         let task = taskSnap.val();
         let taskId = taskSnap.key;
+        let isExpired = Date.now() > task.due || task.status === 'expired';
+        let statusBadge = isExpired 
+          ? `<span class="expired-badge">EXPIRED</span>` 
+          : `<span class="active-badge">ACTIVE</span>`;
         
         container.innerHTML += `
-          <div class="task-card">
-            <h3>${task.title}</h3>
+          <div class="task-card" style="border-left-color: ${isExpired ? '#ef4444' : '#7c3aed'}">
+            <h3>${task.title} ${statusBadge}</h3>
+            <p><b>Course:</b> ${task.course || 'N/A'}</p>
             <p><b>Department:</b> ${task.department}</p>
             <p><b>Due Date:</b> ${new Date(task.due).toLocaleDateString()}</p>
             <p><b>Question:</b> ${task.question}</p>
@@ -224,21 +317,20 @@
   }
 
   function viewSubmissions(taskId){
-    showPage('submissions'); // mu tafi page din submissions
-    loadSubmissions(taskId); // mu tura taskId din
+    showPage('submissions');
+    loadSubmissions(taskId);
   }
 
-  // NA GYARA WANNAN GABADAYA DON YA NUNA TASKS NA WANNAN LECTURER KAWAI
   function loadSubmissions(filterTaskId = null){
-    db.ref('tasks').orderByChild('createdBy').equalTo(currentUser.email).once('value', tasksSnap=>{ // <- NA KARA FILTER NAN
+    db.ref('tasks').orderByChild('createdBy').equalTo(currentUser.email).once('value', tasksSnap=>{
       let html = '';
       let promises = [];
 
-      tasksSnap.forEach(taskSnap=>{ // muna zagaya tasks na wannan lecturer kawai
+      tasksSnap.forEach(taskSnap=>{
         let taskId = taskSnap.key;
         let taskData = taskSnap.val();
         
-        if(filterTaskId && filterTaskId != taskId) return; // idan an zabi task 1 kawai
+        if(filterTaskId && filterTaskId != taskId) return;
 
         let p = db.ref('submissions/' + taskId).once('value').then(subSnap=>{
           subSnap.forEach(studentSnap=>{
@@ -246,10 +338,17 @@
             let studentEmailKey = studentSnap.key;
             html += `<div class="submission-card ${sub.status}">
               <h3>${taskData.title}</h3>
+              <p><b>Course:</b> ${taskData.course || 'N/A'}</p>
               <p><b>Student:</b> ${sub.name} - ${sub.department}</p>
               <p><b>Answer:</b> ${sub.answer}</p>
               <p><b>Status:</b> ${sub.status}</p>
-              <textarea id="feedback_${studentEmailKey}" placeholder="Write feedback...">${sub.feedback || ''}</textarea>
+              ${sub.marks ? `<p><b>Marks:</b> ${sub.marks}</p>` : ''}
+              
+              <div class="form-group" style="margin-top:12px">
+                <label>Marks / Score</label>
+                <input type="text" id="marks_${studentEmailKey}" placeholder="E.g: 18/20" value="${sub.marks || ''}">
+              </div>
+              <textarea id="feedback_${studentEmailKey}" placeholder="Write feedback..." rows="3">${sub.feedback || ''}</textarea>
               <button class="btn btn-mark" onclick="markTask('${taskId}', '${studentEmailKey}')">Mark & Send Feedback</button>
             </div>`;
           });
@@ -263,10 +362,13 @@
     });
   }
 
-  function markTask(taskId, studentEmailKey){ // NA GYARA SUNA
+  function markTask(taskId, studentEmailKey){
     let feedback = document.getElementById('feedback_' + studentEmailKey).value;
+    let marks = document.getElementById('marks_' + studentEmailKey).value;
+
     db.ref('submissions/' + taskId + '/' + studentEmailKey).update({
       feedback: feedback,
+      marks: marks,
       status: "marked",
       markedAt: Date.now()
     }).then(()=>{
@@ -285,7 +387,12 @@
     });
   }
 
+  // Run reminder + expire check when page loads
+  checkRemindersAndExpire();
+  // Also check every 30 minutes while lecturer is online
+  setInterval(checkRemindersAndExpire, 30 * 60 * 1000);
+
   showPage('create');
 </script>
 </body>
- </html>
+</html>
