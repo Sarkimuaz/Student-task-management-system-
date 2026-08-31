@@ -4,8 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Lecturer Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+  * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
   body { background: #f4f6f9; padding-bottom: 80px; }
   .hidden { display: none; }
   .header { background: #7c3aed; color: white; padding: 15px 20px; position: sticky; top: 0; z-index: 10; display: flex; justify-content: space-between; align-items: center; }
@@ -18,6 +20,7 @@
   .btn { background: #7c3aed; color: white; padding: 12px; border: none; border-radius: 8px; width: 100%; font-weight: 600; cursor: pointer; margin-bottom: 10px; }
   .btn-mark { background: #10b981; }
   .btn-logout { background: #ef4444; }
+  .btn-pdf { background: #2563eb; }
   .submission-card { background: white; border-radius: 12px; padding: 18px; margin-bottom: 15px; border-left: 5px solid #f59e0b; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
   .submission-card.marked { border-left-color: #10b981; }
   .navbar { position: fixed; bottom: 0; left: 0; right: 0; background: white; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #e2e8f0; }
@@ -26,6 +29,9 @@
   .task-card { background: white; border-radius: 12px; padding: 18px; margin-bottom: 15px; border-left: 5px solid #7c3aed; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
   .expired-badge { background: #ef4444; color: white; padding: 3px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; }
   .active-badge { background: #10b981; color: white; padding: 3px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; }
+  .stats-box { background: white; border-radius: 12px; padding: 15px 20px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; }
+  .stats-number { font-size: 28px; font-weight: 700; color: #7c3aed; }
+  .stats-label { font-size: 14px; color: #64748b; }
 </style>
 </head>
 <body>
@@ -45,7 +51,7 @@
           <option>Computer Engineering</option>
           <option>Electrical Engineering</option>
           <option>Civil Engineering</option>
-           <option>Medical Laboratory</option>
+          <option>Medical Laboratory</option>
           <option>Accounting</option>
         </select>
       </div>
@@ -61,10 +67,10 @@
         <label>Question / Description</label>
         <textarea id="taskQuestion" rows="4"></textarea>
       </div>
-       <div class="form-group">
-         <label>Due Date</label>
-         <input type="date" id="taskDue">
-       </div>
+      <div class="form-group">
+        <label>Due Date</label>
+        <input type="date" id="taskDue">
+      </div>
       <button class="btn" onclick="createTask()">Create Task</button>
     </div>
   </div>
@@ -77,7 +83,29 @@
 
   <!-- PAGE: SUBMISSIONS -->
   <div id="page-submissions" class="container hidden">
-    <h2 class="section-title">Student Submissions</h2>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; flex-wrap:wrap; gap:10px;">
+      <h2 class="section-title" style="margin:0;">Student Submissions</h2>
+      <button class="btn btn-pdf" style="width:auto; padding:10px 16px;" onclick="downloadSubmissionsPDF()">
+        Download PDF
+      </button>
+    </div>
+
+    <!-- TOTAL SUBMISSIONS -->
+    <div class="stats-box">
+      <div>
+        <div class="stats-label">Total Submissions</div>
+        <div class="stats-number" id="totalSubmissions">0</div>
+      </div>
+      <div>
+        <div class="stats-label">Marked</div>
+        <div class="stats-number" id="totalMarked" style="color:#10b981;">0</div>
+      </div>
+      <div>
+        <div class="stats-label">Pending</div>
+        <div class="stats-number" id="totalPending" style="color:#f59e0b;">0</div>
+      </div>
+    </div>
+
     <div id="submissionsList">Loading...</div>
   </div>
 
@@ -87,7 +115,7 @@
     <div class="form-box">
       <p><strong>Name:</strong> <span id="pName"></span></p>
       <p><strong>Email:</strong> <span id="pEmail"></span></p>
-       <p><strong>Department:</strong> <span id="pDept"></span></p>
+      <p><strong>Department:</strong> <span id="pDept"></span></p>
       <hr style="margin: 15px 0;">
       <div class="form-group"><label>New Name</label><input type="text" id="lName"></div>
       <div class="form-group"><label>New Password</label><input type="password" id="lPassword"></div>
@@ -109,20 +137,22 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 <script>
   const firebaseConfig = {
-  apiKey: "AIzaSyA1fy2BvuM-mB...",
-  authDomain: "student-task-something.firebaseapp.com",
-  databaseURL: "https://student-task-system-default-rtdb.firebaseio.com/",
-  projectId: "student-task-sy...",
-  storageBucket: "student-tas...",
-  messagingSenderId: "1678603...",
-  appId: "1:167860350961:web:...",
-  measurementId: "G-98M6ZGPNX..."
-};
+    apiKey: "AIzaSyA1fy2BvuM-mB...",
+    authDomain: "student-task-something.firebaseapp.com",
+    databaseURL: "https://student-task-system-default-rtdb.firebaseio.com/",
+    projectId: "student-task-sy...",
+    storageBucket: "student-tas...",
+    messagingSenderId: "1678603...",
+    appId: "1:167860350961:web:...",
+    measurementId: "G-98M6ZGPNX..."
+  };
   firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
   
   let currentUser = JSON.parse(localStorage.getItem('currentUser'));
-  if(!currentUser || currentUser.role != 'lecturer'){ window.location.href = 'login.html'; }
+  if(!currentUser || currentUser.role != 'lecturer'){ 
+    window.location.href = 'login.html'; 
+  }
 
   function showPage(page, el){
     document.querySelectorAll('[id^="page-"]').forEach(p => p.classList.add('hidden'));
@@ -141,13 +171,16 @@
     if(page == 'submissions'){ loadSubmissions(); }
   }
 
-  function logout(){ localStorage.removeItem('currentUser'); window.location.href = 'index.html'; }
+  function logout(){ 
+    localStorage.removeItem('currentUser'); 
+    window.location.href = 'index.html'; 
+  }
 
   function createTask(){
-    let title = document.getElementById('taskTitle').value;
-    let question = document.getElementById('taskQuestion').value;
+    let title = document.getElementById('taskTitle').value.trim();
+    let question = document.getElementById('taskQuestion').value.trim();
     let dept = document.getElementById('taskDept').value;
-    let course = document.getElementById('taskCourse').value;
+    let course = document.getElementById('taskCourse').value.trim();
     let due = document.getElementById('taskDue').value;
     
     if(title == "" || question == "" || dept == "" || due == "" || course == ""){ 
@@ -267,12 +300,10 @@
     });
   }
 
-  // FUNCTION NA NUNA TASKS NA WANNAN LECTURER KAWAI
   function loadTasks(){
     let container = document.getElementById('tasksList');
     container.innerHTML = "Loading tasks...";
     
-    // Check expire + reminder every time we open My Tasks
     checkRemindersAndExpire();
 
     db.ref('tasks').orderByChild('createdBy').equalTo(currentUser.email).on('value', snap=>{
@@ -291,19 +322,25 @@
           ? `<span class="expired-badge">EXPIRED</span>` 
           : `<span class="active-badge">ACTIVE</span>`;
         
-        container.innerHTML += `
-          <div class="task-card" style="border-left-color: ${isExpired ? '#ef4444' : '#7c3aed'}">
-            <h3>${task.title} ${statusBadge}</h3>
-            <p><b>Course:</b> ${task.course || 'N/A'}</p>
-            <p><b>Department:</b> ${task.department}</p>
-            <p><b>Due Date:</b> ${new Date(task.due).toLocaleDateString()}</p>
-            <p><b>Question:</b> ${task.question}</p>
-            <div style="margin-top:10px">
-              <button onclick="viewSubmissions('${taskId}')" class="btn btn-mark" style="width:auto; padding:8px 12px">View Submissions</button>
-              <button onclick="deleteTask('${taskId}')" class="btn btn-logout" style="width:auto; padding:8px 12px">Delete</button>
+        // Count submissions for this task
+        db.ref('submissions/' + taskId).once('value', subSnap=>{
+          let subCount = subSnap.exists() ? subSnap.numChildren() : 0;
+
+          container.innerHTML += `
+            <div class="task-card" style="border-left-color: ${isExpired ? '#ef4444' : '#7c3aed'}">
+              <h3>${task.title} ${statusBadge}</h3>
+              <p><b>Course:</b> ${task.course || 'N/A'}</p>
+              <p><b>Department:</b> ${task.department}</p>
+              <p><b>Due Date:</b> ${new Date(task.due).toLocaleDateString()}</p>
+              <p><b>Submissions:</b> ${subCount}</p>
+              <p><b>Question:</b> ${task.question}</p>
+              <div style="margin-top:10px">
+                <button onclick="viewSubmissions('${taskId}')" class="btn btn-mark" style="width:auto; padding:8px 12px">View Submissions</button>
+                <button onclick="deleteTask('${taskId}')" class="btn btn-logout" style="width:auto; padding:8px 12px">Delete</button>
+              </div>
             </div>
-          </div>
-        `;
+          `;
+        });
       });
     });
   }
@@ -318,6 +355,9 @@
 
   function viewSubmissions(taskId){
     showPage('submissions');
+    // Highlight the active nav
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.querySelectorAll('.nav-item')[2].classList.add('active');
     loadSubmissions(taskId);
   }
 
@@ -325,6 +365,9 @@
     db.ref('tasks').orderByChild('createdBy').equalTo(currentUser.email).once('value', tasksSnap=>{
       let html = '';
       let promises = [];
+      let total = 0;
+      let marked = 0;
+      let pending = 0;
 
       tasksSnap.forEach(taskSnap=>{
         let taskId = taskSnap.key;
@@ -336,6 +379,11 @@
           subSnap.forEach(studentSnap=>{
             let sub = studentSnap.val();
             let studentEmailKey = studentSnap.key;
+            
+            total++;
+            if(sub.status === 'marked') marked++;
+            else pending++;
+
             html += `<div class="submission-card ${sub.status}">
               <h3>${taskData.title}</h3>
               <p><b>Course:</b> ${taskData.course || 'N/A'}</p>
@@ -357,7 +405,10 @@
       });
       
       Promise.all(promises).then(()=>{
-        document.getElementById('submissionsList').innerHTML = html || "No submissions yet";
+        document.getElementById('submissionsList').innerHTML = html || "<p style='text-align:center;color:gray'>No submissions yet</p>";
+        document.getElementById('totalSubmissions').innerText = total;
+        document.getElementById('totalMarked').innerText = marked;
+        document.getElementById('totalPending').innerText = pending;
       });
     });
   }
@@ -377,19 +428,80 @@
     });
   }
 
+  function downloadSubmissionsPDF(){
+    db.ref('tasks').orderByChild('createdBy').equalTo(currentUser.email).once('value', tasksSnap=>{
+      let rows = [];
+      let promises = [];
+
+      tasksSnap.forEach(taskSnap=>{
+        let taskId = taskSnap.key;
+        let taskData = taskSnap.val();
+
+        let p = db.ref('submissions/' + taskId).once('value').then(subSnap=>{
+          subSnap.forEach(studentSnap=>{
+            let sub = studentSnap.val();
+            rows.push([
+              taskData.title || '',
+              taskData.course || 'N/A',
+              sub.name || '',
+              sub.department || '',
+              (sub.answer || '').substring(0, 60) + ((sub.answer || '').length > 60 ? '...' : ''),
+              sub.marks || '-',
+              sub.status || '',
+              (sub.feedback || '-').substring(0, 40)
+            ]);
+          });
+        });
+        promises.push(p);
+      });
+
+      Promise.all(promises).then(()=>{
+        if(rows.length === 0){
+          alert("Babu submissions da za a download");
+          return;
+        }
+
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF('l', 'mm', 'a4');
+
+        doc.setFontSize(16);
+        doc.text("Student Submissions Record", 14, 15);
+        doc.setFontSize(10);
+        doc.text("Lecturer: " + (currentUser.name || currentUser.email), 14, 22);
+        doc.text("Date: " + new Date().toLocaleDateString(), 14, 28);
+        doc.text("Total Submissions: " + rows.length, 14, 34);
+
+        doc.autoTable({
+          startY: 40,
+          head: [['Task Title', 'Course', 'Student', 'Dept', 'Answer', 'Marks', 'Status', 'Feedback']],
+          body: rows,
+          styles: { fontSize: 8, cellPadding: 2 },
+          headStyles: { fillColor: [124, 58, 237] },
+          columnStyles: {
+            4: { cellWidth: 40 },
+            7: { cellWidth: 30 }
+          }
+        });
+
+        let fileName = "Submissions_Record_" + new Date().toISOString().slice(0,10) + ".pdf";
+        doc.save(fileName);
+        alert("PDF an sauke ✓");
+      });
+    });
+  }
+
   function updateProfile(){
     let newName = document.getElementById('lName').value;
     let userEmail = currentUser.email.replace(/\./g, ',');
-   db.ref('users/' + userEmail).update({ name: newName }).then(()=>{
+    db.ref('users/' + userEmail).update({ name: newName }).then(()=>{
       currentUser.name = newName;
       localStorage.setItem('currentUser', JSON.stringify(currentUser));
       alert("Profile Updated!");
     });
   }
 
-  // Run reminder + expire check when page loads
+  // Run on load
   checkRemindersAndExpire();
-  // Also check every 30 minutes while lecturer is online
   setInterval(checkRemindersAndExpire, 30 * 60 * 1000);
 
   showPage('create');
