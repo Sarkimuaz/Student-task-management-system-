@@ -444,11 +444,12 @@
               taskData.title || '',
               taskData.course || 'N/A',
               sub.name || '',
+              sub.regno || '',
               sub.department || '',
-              (sub.answer || '').substring(0, 60) + ((sub.answer || '').length > 60 ? '...' : ''),
+            
               sub.marks || '-',
               sub.status || '',
-              (sub.feedback || '-').substring(0, 40)
+             
             ]);
           });
         });
