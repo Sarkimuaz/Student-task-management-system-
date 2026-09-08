@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Register - Task System</title>
 <style>
-  * {
+    * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -131,6 +131,12 @@
       </select>
     </div>
 
+    <!-- Wannan filin zai bayyana ne kawai ga Student -->
+    <div class="form-group" id="regGroup" style="display: none;">
+      <label>Registration Number</label>
+      <input type="text" id="regno" placeholder="Enter your registration number">
+    </div>
+
     <div class="form-group">
       <label>Department</label>
       <select id="dept">
@@ -166,15 +172,36 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
+    // Nuna/boye Registration Number idan aka canza role
+    const roleSelect = document.getElementById('role');
+    const regGroup = document.getElementById('regGroup');
+
+    function toggleRegField() {
+      if (roleSelect.value === 'student') {
+        regGroup.style.display = 'block';
+      } else {
+        regGroup.style.display = 'none';
+      }
+    }
+    roleSelect.addEventListener('change', toggleRegField);
+    toggleRegField(); // don dubawa da farko
+
     function register() {
       let name = document.getElementById('name').value.trim();
       let email = document.getElementById('email').value.trim();
       let password = document.getElementById('password').value.trim();
       let role = document.getElementById('role').value;
+      let regno = document.getElementById('regno').value.trim();
       let dept = document.getElementById('dept').value;
 
       if (name === "" || email === "" || password === "" || dept === "") {
         alert("Please fill all required fields");
+        return;
+      }
+
+      // idan student ne to dole ya cika reg no
+      if (role === 'student' && regno === "") {
+        alert("Please enter your Registration Number");
         return;
       }
 
@@ -185,6 +212,7 @@
         email,
         password,
         role,
+        regno: role === 'student' ? regno : "", 
         dept,
         department: dept,
         status: 'pending',
