@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Student Dashboard</title>
 <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+  * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
   body { background: #f4f6f9; padding-bottom: 80px; }
   .hidden { display: none; }
   
@@ -105,23 +105,25 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 <script>
   // 1. SAKA CONFIG DIN KA ANAN
-const firebaseConfig = {
-  apiKey: "AIzaSyA1fy2BvuM-mB...", // Copy daga screenshot
-  authDomain: "student-task-something.firebaseapp.com", // Cika shi
-  databaseURL: "https://student-task-system-default-rtdb.firebaseio.com/", // Wannan kana dashi
-  projectId: "student-task-sy...", // Cika shi
-  storageBucket: "student-tas...", // Cika shi
-  messagingSenderId: "1678603...", // Cika shi
-  appId: "1:167860350961:web:...", // Cika shi
-  measurementId: "G-98M6ZGPNX..." // Cika shi
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
+  const firebaseConfig = {
+    apiKey: "AIzaSyA1fy2BvuM-mB...", // Copy daga screenshot
+    authDomain: "student-task-something.firebaseapp.com", // Cika shi
+    databaseURL: "https://student-task-system-default-rtdb.firebaseio.com/", // Wannan kana dashi
+    projectId: "student-task-sy...", // Cika shi
+    storageBucket: "student-tas...", // Cika shi
+    messagingSenderId: "1678603...", // Cika shi
+    appId: "1:167860350961:web:...", // Cika shi
+    measurementId: "G-98M6ZGPNX..." // Cika shi
+  };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+
   let currentUser = JSON.parse(localStorage.getItem('currentUser'));
   if(!currentUser){ window.location.href = 'login.html'; }
   
   let studentEmail = currentUser.email.replace(/\./g, ',');
-  let studentDept = currentUser.dept;
+  // Yanzu yana ɗaukar duka (dept ko department)
+  let studentDept = currentUser.dept || currentUser.department || '';
 
   function showPage(page, el){
     document.querySelectorAll('[id^="page-"]').forEach(p => p.classList.add('hidden'));
@@ -133,7 +135,7 @@ const db = firebase.database();
     if(page == 'profile'){
       document.getElementById('pName').innerText = currentUser.name;
       document.getElementById('pEmail').innerText = currentUser.email;
-      document.getElementById('pDept').innerText = currentUser.department;
+      document.getElementById('pDept').innerText = currentUser.dept || currentUser.department || 'N/A';
       document.getElementById('sName').value = currentUser.name;
     }
     if(page == 'tasks'){ loadMyTasksStatus(); }
@@ -141,6 +143,7 @@ const db = firebase.database();
       document.getElementById('studentDept').innerText = studentDept;
       loadTaskDropDown(); 
     }
+    if(page == 'notifications'){ loadNotifications(); }
   }
 
   function logout(){ 
@@ -148,14 +151,18 @@ const db = firebase.database();
     window.location.href = 'index.html'; 
   }
 
-  // 2. GYARA: YANZU YANA TACE TA DEPARTMENT
+  // Load tasks - tace by department + expire
   function loadTaskDropDown(){
     db.ref('tasks').once('value', snap=>{
       let options = '<option>Choose your Assignment...</option>';
+      let now = Date.now();
+
       snap.forEach(child=>{ 
         let task = child.val();
-        if(task.department === studentDept){ // TACE NAN
-          options += `<option value="${child.key}">${task.title}</option>` 
+        if(task.department === studentDept && 
+           task.status !== 'expired' && 
+           now <= task.due){ 
+          options += `<option value="${child.key}">${task.title}</option>`;
         }
       });
       document.getElementById('taskId').innerHTML = options;
@@ -177,68 +184,136 @@ const db = firebase.database();
   function submitTask(){
     let taskId = document.getElementById('taskId').value;
     let answer = document.getElementById('answer').value;
-    if(taskId=='Choose your Assignment...' || answer==""){ alert("Please select assignment and write answer"); return; }
-    
-    db.ref('submissions/' + taskId + '/' + studentEmail).set({
-      answer: answer, 
-      name: currentUser.name, 
-      department: studentDept,
-      time: Date.now(), 
-      status: "pending",
-      feedback: ""
-    }).then(()=>{
-      alert("Submitted Successfully ✓");
-      document.getElementById('answer').value = "";
-      loadMyTasksStatus();
-      showPage('tasks');
-    }).catch(err => alert("DB Error: " + err.message));
+    if(taskId=='Choose your Assignment...' || answer==""){ 
+      alert("Please select assignment and write answer"); 
+      return; 
+    }
+
+    // Check if task has expired
+    db.ref('tasks/' + taskId).once('value', snap=>{
+      let task = snap.val();
+      if(!task || task.status === 'expired' || Date.now() > task.due){
+        alert("This task has expired. You cannot submit.");
+        return;
+      }
+
+      db.ref('submissions/' + taskId + '/' + studentEmail).set({
+        answer: answer, 
+        name: currentUser.name, 
+        department: studentDept,
+        regno: currentUser.regno || '',
+        time: Date.now(), 
+        status: "pending",
+        feedback: ""
+      }).then(()=>{
+        alert("Submitted Successfully ✓");
+        document.getElementById('answer').value = "";
+        loadMyTasksStatus();
+        showPage('tasks');
+      }).catch(err => alert("DB Error: " + err.message));
+    });
   }
 
   function loadMyTasksStatus(){
-  db.ref('submissions').once('value', snap=>{
-    let html = '';
-    let promises = []; // don mu jira mu dauko title
+    db.ref('submissions').once('value', snap=>{
+      let html = '';
+      let promises = [];
 
-    snap.forEach(taskSnap=>{
-      let taskId = taskSnap.key;
-      if(taskSnap.hasChild(studentEmail)){
-        let sub = taskSnap.child(studentEmail).val();
-        
-        // 1. MU DAUKO TITLE DIN TASK DIN
-        let p = db.ref('tasks/' + taskId).once('value').then(taskInfoSnap=>{
-          let taskData = taskInfoSnap.val();
-          let taskTitle = taskData ? taskData.title : taskId; // idan babu title to a nuna key
+      snap.forEach(taskSnap=>{
+        let taskId = taskSnap.key;
+        if(taskSnap.hasChild(studentEmail)){
+          let sub = taskSnap.child(studentEmail).val();
+          
+          let p = db.ref('tasks/' + taskId).once('value').then(taskInfoSnap=>{
+            let taskData = taskInfoSnap.val();
+            let taskTitle = taskData ? taskData.title : taskId;
 
-          html += `<div class="task-card ${sub.status}">
-            <div class="task-header">
-              <h3>${taskTitle}</h3> <!-- <- ANAN MUKA CANZA -->
-              <span class="status ${sub.status}">${sub.status}</span>
-            </div>
-            <p><b>Your Answer:</b> ${sub.answer}</p>
-            <p><b>Feedback:</b> ${sub.feedback || 'No feedback yet'}</p>
-          </div>`;
-        });
-        promises.push(p);
-      }
+            html += `<div class="task-card ${sub.status}">
+              <div class="task-header">
+                <h3>${taskTitle}</h3>
+                <span class="status ${sub.status}">${sub.status}</span>
+              </div>
+              <p><b>Your Answer:</b> ${sub.answer}</p>
+              <p><b>Feedback:</b> ${sub.feedback || 'No feedback yet'}</p>
+              ${sub.marks ? `<p><b>Marks:</b> ${sub.marks}</p>` : ''}
+            </div>`;
+          });
+          promises.push(p);
+        }
+      });
+
+      Promise.all(promises).then(()=>{
+        document.getElementById('myTasksList').innerHTML = html || "No submissions yet";
+      });
     });
-
-    // 2. BARI DUK YA DAUKO TO MU NUNA
-    Promise.all(promises).then(()=>{
-      document.getElementById('myTasksList').innerHTML = html || "No submissions yet";
-    });
-  });
-}
+  }
   
   function updateProfile(){
     let newName = document.getElementById('sName').value;
-     db.ref('users/' + studentEmail).update({ name: newName }).then(()=>{
+    db.ref('users/' + studentEmail).update({ name: newName }).then(()=>{
       currentUser.name = newName;
       localStorage.setItem('currentUser', JSON.stringify(currentUser));
       alert("Profile Updated!");
     }).catch(err => alert("DB Error: " + err.message));
   }
 
+  // ========== NOTIFICATIONS ==========
+  function loadNotifications(){
+    let container = document.getElementById('notifList');
+    container.innerHTML = "Loading...";
+
+    db.ref('notifications/' + studentEmail).orderByChild('createdAt').once('value', snap=>{
+      if(!snap.exists()){
+        container.innerHTML = "<p style='text-align:center;color:gray'>No notifications</p>";
+        document.getElementById('notifCount').innerText = '0';
+        return;
+      }
+
+      let html = '';
+      let unread = 0;
+      let notifs = [];
+
+      snap.forEach(child=>{
+        notifs.push({key: child.key, ...child.val()});
+      });
+
+      // nuna sababbi a sama
+      notifs.reverse().forEach(n=>{
+        if(!n.read) unread++;
+        html += `
+          <div class="task-card" style="border-left-color:${n.read ? '#94a3b8' : '#2563eb'}">
+            <h3>${n.title}</h3>
+            <p>${n.message}</p>
+            <p style="font-size:12px;color:#64748b;margin-top:6px">${new Date(n.createdAt).toLocaleString()}</p>
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+      document.getElementById('notifCount').innerText = unread;
+
+      // mark all as read
+      snap.forEach(child=>{
+        if(!child.val().read){
+          db.ref('notifications/' + studentEmail + '/' + child.key).update({read: true});
+        }
+      });
+    });
+  }
+
+  // Real-time badge update
+  db.ref('notifications/' + studentEmail).on('value', snap=>{
+    let unread = 0;
+    if(snap.exists()){
+      snap.forEach(child=>{
+        if(!child.val().read) unread++;
+      });
+    }
+    document.getElementById('notifCount').innerText = unread;
+  });
+
+  // Start
   showPage('home');
 </script>
 </body>
- </html>
+</html>
