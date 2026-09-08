@@ -428,69 +428,66 @@
     });
   }
 
-  function downloadSubmissionsPDF(){
-    db.ref('tasks').orderByChild('createdBy').equalTo(currentUser.email).once('value', tasksSnap=>{
-      let rows = [];
-      let promises = [];
+function downloadSubmissionsPDF(){
+  db.ref('tasks').orderByChild('createdBy').equalTo(currentUser.email).once('value', tasksSnap=>{
+    let rows = [];
+    let promises = [];
 
-      tasksSnap.forEach(taskSnap=>{
-        let taskId = taskSnap.key;
-        let taskData = taskSnap.val();
+    tasksSnap.forEach(taskSnap=>{
+      let taskId = taskSnap.key;
+      let taskData = taskSnap.val();
 
-        let p = db.ref('submissions/' + taskId).once('value').then(subSnap=>{
-          subSnap.forEach(studentSnap=>{
-            let sub = studentSnap.val();
-            rows.push([
-              taskData.title || '',
-              taskData.course || 'N/A',
-              sub.name || '',
-              sub.regno || '',
-              sub.department || '',
-            
-              sub.marks || '-',
-              sub.status || '',
-             
-            ]);
-          });
+      let p = db.ref('submissions/' + taskId).once('value').then(subSnap=>{
+        subSnap.forEach(studentSnap=>{
+          let sub = studentSnap.val();
+          rows.push([
+            taskData.title || '',
+            taskData.course || 'N/A',
+            sub.name || '',
+            sub.regno || '',
+            sub.department || '',
+            sub.marks || '-',
+            sub.status || '',
+            sub.feedback || ''
+          ]);
         });
-        promises.push(p);
       });
-
-      Promise.all(promises).then(()=>{
-        if(rows.length === 0){
-          alert("Babu submissions da za a download");
-          return;
-        }
-
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF('l', 'mm', 'a4');
-
-        doc.setFontSize(16);
-        doc.text("Student Submissions Record", 14, 15);
-        doc.setFontSize(10);
-        doc.text("Lecturer: " + (currentUser.name || currentUser.email), 14, 22);
-        doc.text("Date: " + new Date().toLocaleDateString(), 14, 28);
-        doc.text("Total Submissions: " + rows.length, 14, 34);
-
-        doc.autoTable({
-          startY: 40,
-          head: [['Task Title', 'Course', 'Student', 'Dept', 'Answer', 'Marks', 'Status', 'Feedback']],
-          body: rows,
-          styles: { fontSize: 8, cellPadding: 2 },
-          headStyles: { fillColor: [124, 58, 237] },
-          columnStyles: {
-            4: { cellWidth: 40 },
-            7: { cellWidth: 30 }
-          }
-        });
-
-        let fileName = "Submissions_Record_" + new Date().toISOString().slice(0,10) + ".pdf";
-        doc.save(fileName);
-        alert("PDF an sauke ✓");
-      });
+      promises.push(p);
     });
-  }
 
+    Promise.all(promises).then(()=>{
+      if(rows.length === 0){
+        alert("Babu submissions da za a download");
+        return;
+      }
+
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF('l', 'mm', 'a4');
+
+      doc.setFontSize(16);
+      doc.text("Student Submissions Record", 14, 15);
+      doc.setFontSize(10);
+      doc.text("Lecturer: " + (currentUser.name || currentUser.email), 14, 22);
+      doc.text("Date: " + new Date().toLocaleDateString(), 14, 28);
+      doc.text("Total Submissions: " + rows.length, 14, 34);
+
+      doc.autoTable({
+        startY: 40,
+        head: [['Task Title', 'Course', 'Student Name', 'Reg No', 'Department', 'Marks', 'Status', 'Feedback']],
+        body: rows,
+        styles: { fontSize: 8, cellPadding: 2 },
+        headStyles: { fillColor: [124, 58, 237] },
+        columnStyles: {
+          7: { cellWidth: 35 }    // Feedback
+        }
+      });
+
+      let fileName = "Submissions_Record_" + new Date().toISOString().slice(0,10) + ".pdf";
+      doc.save(fileName);
+      alert("PDF Downloaded ✓");
+    });
+  });
+}
   function updateProfile(){
     let newName = document.getElementById('lName').value;
     let userEmail = currentUser.email.replace(/\./g, ',');
