@@ -5,37 +5,262 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Student Dashboard</title>
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-  body { background: #f4f6f9; padding-bottom: 80px; }
-  .hidden { display: none; }
-  
-  .header { background: #2563eb; color: white; padding: 15px 20px; position: sticky; top: 0; z-index: 10; display: flex; justify-content: space-between; align-items: center; }
-  .header h1 { font-size: 20px; }
-  .notif { position: relative; cursor: pointer; }
-  .notif-badge { position: absolute; top: -5px; right: -5px; background: #ef4444; color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 10px; display: flex; align-items: center; justify-content: center; }
-  
-  .container { padding: 20px; }
-  .section-title { font-size: 18px; font-weight: 600; margin-bottom: 15px; color: #1e293b; }
-  
-  .task-card { background: white; border-radius: 12px; padding: 18px; margin-bottom: 15px; border-left: 5px solid #f59e0b; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+  * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+
+  body {
+    background: linear-gradient(135deg, #f0f4f8 0%, #e8eef5 100%);
+    min-height: 100vh;
+    padding-bottom: 90px;
+    color: #1e293b;
+  }
+
+  .hidden { display: none !important; }
+
+  /* Header */
+  .header {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    color: white;
+    padding: 16px 20px;
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 20px rgba(37, 99, 235, 0.3);
+  }
+  .header h1 { font-size: 20px; font-weight: 600; }
+  .notif { position: relative; cursor: pointer; padding: 4px; }
+  .notif svg { display: block; }
+  .notif-badge {
+    position: absolute;
+    top: -4px;
+    right: -6px;
+    background: #ef4444;
+    color: white;
+    border-radius: 50%;
+    min-width: 18px;
+    height: 18px;
+    font-size: 10px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+    box-shadow: 0 2px 6px rgba(239, 68, 68, 0.4);
+  }
+
+  .container { padding: 20px 16px; max-width: 600px; margin: 0 auto; }
+
+  .section-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    color: #0f172a;
+  }
+
+  /* Form box */
+  .form-box {
+    background: #fff;
+    padding: 22px;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    margin-bottom: 20px;
+    border: 1px solid rgba(0,0,0,0.04);
+  }
+
+  .form-group { margin-bottom: 16px; }
+  .form-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600;
+    font-size: 13px;
+    color: #334155;
+  }
+  .form-group select,
+  .form-group textarea,
+  .form-group input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 14px;
+    background: #f8fafc;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .form-group select:focus,
+  .form-group textarea:focus,
+  .form-group input:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    background: #fff;
+  }
+
+  .btn {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    color: white;
+    padding: 13px;
+    border: none;
+    border-radius: 10px;
+    width: 100%;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    margin-bottom: 10px;
+    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .btn:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(37, 99, 235, 0.4); }
+  .btn-logout {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    box-shadow: 0 4px 14px rgba(239, 68, 68, 0.3);
+  }
+
+  /* Task cards - collapsible */
+  .task-card {
+    background: #fff;
+    border-radius: 14px;
+    margin-bottom: 12px;
+    border-left: 5px solid #f59e0b;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+    overflow: hidden;
+    transition: box-shadow 0.2s;
+  }
+  .task-card:hover { box-shadow: 0 4px 18px rgba(0,0,0,0.08); }
   .task-card.marked { border-left-color: #10b981; }
   .task-card.pending { border-left-color: #f59e0b; }
-  
-  .task-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-  .status { padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; color: white; }
+
+  .task-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 18px;
+    cursor: pointer;
+    user-select: none;
+    gap: 10px;
+  }
+  .task-header h3 {
+    font-size: 15px;
+    font-weight: 600;
+    color: #0f172a;
+    flex: 1;
+    line-height: 1.35;
+  }
+  .task-header .chevron {
+    color: #94a3b8;
+    font-size: 18px;
+    transition: transform 0.25s ease;
+    flex-shrink: 0;
+  }
+  .task-card.open .chevron { transform: rotate(180deg); }
+
+  .status {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    flex-shrink: 0;
+  }
   .status.pending { background: #f59e0b; }
   .status.marked { background: #10b981; }
-  
-  .form-box { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 20px; }
-  .form-group { margin-bottom: 15px; }
-  .form-group label { display: block; margin-bottom: 5px; font-weight: 600; color: #334155; }
-  .form-group select, .form-group textarea, .form-group input { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; }
-  .btn { background: #2563eb; color: white; padding: 12px; border: none; border-radius: 8px; width: 100%; font-weight: 600; cursor: pointer; margin-bottom: 10px; }
-  .btn-logout { background: #ef4444; }
-  
-  .navbar { position: fixed; bottom: 0; left: 0; right: 0; background: white; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #e2e8f0; }
-  .nav-item { text-align: center; color: #64748b; font-size: 12px; cursor: pointer; }
-  .nav-item.active { color: #2563eb; }
+
+  .task-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease, padding 0.3s ease;
+    padding: 0 18px;
+    background: #f8fafc;
+  }
+  .task-card.open .task-body {
+    max-height: 500px;
+    padding: 0 18px 16px;
+  }
+  .task-body p {
+    font-size: 14px;
+    margin-bottom: 8px;
+    color: #334155;
+    line-height: 1.5;
+    word-break: break-word;
+  }
+  .task-body p:last-child { margin-bottom: 0; }
+  .task-body b { color: #0f172a; }
+
+  /* Profile info */
+  .profile-info p {
+    padding: 10px 0;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 14px;
+    color: #475569;
+  }
+  .profile-info p:last-of-type { border-bottom: none; }
+  .profile-info strong { color: #0f172a; min-width: 130px; display: inline-block; }
+
+  /* Question display */
+  #questionDisplay {
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 16px;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  #questionDisplay b { color: #1e40af; }
+
+  /* Notifications */
+  .notif-item {
+    background: #fff;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    border-left: 4px solid #2563eb;
+  }
+  .notif-item.read { border-left-color: #94a3b8; opacity: 0.85; }
+  .notif-item h3 { font-size: 15px; margin-bottom: 6px; color: #0f172a; }
+  .notif-item p { font-size: 13px; color: #475569; line-height: 1.45; }
+  .notif-time { font-size: 11px; color: #94a3b8; margin-top: 8px; }
+
+  /* Navbar */
+  .navbar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #fff;
+    display: flex;
+    justify-content: space-around;
+    padding: 12px 0 14px;
+    border-top: 1px solid #e2e8f0;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.06);
+    z-index: 30;
+  }
+  .nav-item {
+    text-align: center;
+    color: #94a3b8;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 4px 12px;
+    border-radius: 10px;
+    transition: color 0.2s, background 0.2s;
+  }
+  .nav-item.active {
+    color: #2563eb;
+    font-weight: 700;
+  }
+  .nav-item:hover { color: #2563eb; background: rgba(37,99,235,0.06); }
+
+  .empty-msg {
+    text-align: center;
+    color: #94a3b8;
+    padding: 30px 10px;
+    font-size: 14px;
+  }
 </style>
 </head>
 <body>
@@ -52,15 +277,15 @@
   <div id="page-home" class="container">
     <div class="form-box">
       <h2 class="section-title">Submit Task</h2>
-      <p style="margin-bottom:10px; color:#64748b">Department: <b id="studentDept"></b></p>
+      <p style="margin-bottom:14px; color:#64748b; font-size:14px;">Department: <b id="studentDept"></b></p>
       <div class="form-group">
         <label>Choose Assignment</label>
-        <select id="taskId" onchange="loadQuestion()"><option>Loading tasks...</option></select>
+        <select id="taskId" onchange="loadQuestion()"><option value="">Loading tasks...</option></select>
       </div>
       <div id="questionDisplay" class="hidden"></div>
       <div class="form-group hidden" id="answerBox">
         <label>Your Answer</label>
-        <textarea id="answer" rows="4"></textarea>
+        <textarea id="answer" rows="4" placeholder="Write your answer here..."></textarea>
       </div>
       <button class="btn hidden" id="submitBtn" onclick="submitTask()">Submit Answer</button>
     </div>
@@ -69,19 +294,22 @@
   <!-- PAGE: TASKS -->
   <div id="page-tasks" class="container hidden">
     <h2 class="section-title">My Task Status</h2>
-    <div id="myTasksList">Loading...</div>
+    <div id="myTasksList"><p class="empty-msg">Loading...</p></div>
   </div>
 
   <!-- PAGE: PROFILE -->
   <div id="page-profile" class="container hidden">
     <h2 class="section-title">Account Settings</h2>
     <div class="form-box">
-      <p><strong>Name:</strong> <span id="pName"></span></p>
-      <p><strong>Email:</strong> <span id="pEmail"></span></p>
-      <p><strong>Department:</strong> <span id="pDept"></span></p>
-      <hr style="margin: 15px 0;">
-      <div class="form-group"><label>New Name</label><input type="text" id="sName"></div>
-      <div class="form-group"><label>New Password</label><input type="password" id="sPassword"></div>
+      <div class="profile-info">
+        <p><strong>Name:</strong> <span id="pName"></span></p>
+        <p><strong>Email:</strong> <span id="pEmail"></span></p>
+        <p><strong>Department:</strong> <span id="pDept"></span></p>
+        <p><strong>Reg. Number:</strong> <span id="pReg"></span></p>
+      </div>
+      <hr style="margin: 18px 0; border: none; border-top: 1px solid #e2e8f0;">
+      <div class="form-group"><label>New Name</label><input type="text" id="sName" placeholder="Enter new name"></div>
+      <div class="form-group"><label>New Password</label><input type="password" id="sPassword" placeholder="Enter new password"></div>
       <button class="btn" onclick="updateProfile()">Update Profile</button>
       <button class="btn btn-logout" onclick="logout()">Logout</button>
     </div>
@@ -90,7 +318,7 @@
   <!-- PAGE: NOTIFICATIONS -->
   <div id="page-notifications" class="container hidden">
     <h2 class="section-title">Notifications</h2>
-    <div id="notifList">No notifications</div>
+    <div id="notifList"><p class="empty-msg">No notifications</p></div>
   </div>
 
   <!-- NAVBAR -->
@@ -104,77 +332,111 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 <script>
-  // 1. SAKA CONFIG DIN KA ANAN
   const firebaseConfig = {
-    apiKey: "AIzaSyA1fy2BvuM-mB...", // Copy daga screenshot
-    authDomain: "student-task-something.firebaseapp.com", // Cika shi
-    databaseURL: "https://student-task-system-default-rtdb.firebaseio.com/", // Wannan kana dashi
-    projectId: "student-task-sy...", // Cika shi
-    storageBucket: "student-tas...", // Cika shi
-    messagingSenderId: "1678603...", // Cika shi
-    appId: "1:167860350961:web:...", // Cika shi
-    measurementId: "G-98M6ZGPNX..." // Cika shi
+    apiKey: "AIzaSyA1fy2BvuM-mBDM5fuZID9NbkMsx-6ie0U",
+    authDomain: "student-task-system.firebaseapp.com",
+    databaseURL: "https://student-task-system-default-rtdb.firebaseio.com",
+    projectId: "student-task-system"
   };
   firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
 
   let currentUser = JSON.parse(localStorage.getItem('currentUser'));
   if(!currentUser){ window.location.href = 'login.html'; }
-  
-  let studentEmail = currentUser.email.replace(/\./g, ',');
-  // Yanzu yana ɗaukar duka (dept ko department)
-  let studentDept = currentUser.dept || currentUser.department || '';
+
+  // Use underscore to match Admin dashboard keys
+  let studentEmail = currentUser.email.replace(/\./g, '_');
+  let studentDept = (currentUser.dept || currentUser.department || '').trim();
 
   function showPage(page, el){
     document.querySelectorAll('[id^="page-"]').forEach(p => p.classList.add('hidden'));
     document.getElementById('page-' + page).classList.remove('hidden');
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
     if(el) el.classList.add('active');
-    document.getElementById('pageTitle').innerText = page.charAt(0).toUpperCase() + page.slice(1);
 
-    if(page == 'profile'){
-      document.getElementById('pName').innerText = currentUser.name;
-      document.getElementById('pEmail').innerText = currentUser.email;
-      document.getElementById('pDept').innerText = currentUser.dept || currentUser.department || 'N/A';
-      document.getElementById('sName').value = currentUser.name;
+    const titles = { home: 'Home', tasks: 'Tasks', profile: 'Profile', notifications: 'Notifications' };
+    document.getElementById('pageTitle').innerText = titles[page] || page;
+
+    if(page === 'profile'){
+      document.getElementById('pName').innerText = currentUser.name || 'N/A';
+      document.getElementById('pEmail').innerText = currentUser.email || 'N/A';
+      document.getElementById('pDept').innerText = studentDept || 'N/A';
+      document.getElementById('pReg').innerText = currentUser.regNumber || currentUser.regno || currentUser.regNo || 'N/A';
+      document.getElementById('sName').value = currentUser.name || '';
     }
-    if(page == 'tasks'){ loadMyTasksStatus(); }
-    if(page == 'home'){ 
-      document.getElementById('studentDept').innerText = studentDept;
-      loadTaskDropDown(); 
+    if(page === 'tasks'){ loadMyTasksStatus(); }
+    if(page === 'home'){
+      document.getElementById('studentDept').innerText = studentDept || 'N/A';
+      loadTaskDropDown();
     }
-    if(page == 'notifications'){ loadNotifications(); }
+    if(page === 'notifications'){ loadNotifications(); }
   }
 
-  function logout(){ 
-    localStorage.removeItem('currentUser'); 
-    window.location.href = 'index.html'; 
+  function logout(){
+    localStorage.removeItem('currentUser');
+    window.location.href = 'index.html';
   }
 
-  // Load tasks - tace by department + expire
+  // ========== LOAD TASKS DROPDOWN (fixed) ==========
   function loadTaskDropDown(){
-    db.ref('tasks').once('value', snap=>{
-      let options = '<option>Choose your Assignment...</option>';
-      let now = Date.now();
+    const select = document.getElementById('taskId');
+    select.innerHTML = '<option value="">Loading tasks...</option>';
 
-      snap.forEach(child=>{ 
+    db.ref('tasks').once('value', snap => {
+      let options = '<option value="">Choose your Assignment...</option>';
+      let now = Date.now();
+      let count = 0;
+
+      if(!snap.exists()){
+        select.innerHTML = '<option value="">No tasks available</option>';
+        return;
+      }
+
+      snap.forEach(child => {
         let task = child.val();
-        if(task.department === studentDept && 
-           task.status !== 'expired' && 
-           now <= task.due){ 
-          options += `<option value="${child.key}">${task.title}</option>`;
+        if(!task) return;
+
+        // Flexible department match (dept or department, case-insensitive)
+        let taskDept = (task.department || task.dept || '').trim().toLowerCase();
+        let myDept = studentDept.toLowerCase();
+
+        // Skip if department does not match (and both are set)
+        if(myDept && taskDept && taskDept !== myDept) return;
+
+        // Skip expired
+        if(task.status === 'expired') return;
+
+        // Due date check (flexible: number or skip if missing/invalid)
+        let due = task.due;
+        if(due){
+          // if due is string date, try parse
+          if(typeof due === 'string') due = new Date(due).getTime();
+          if(!isNaN(due) && now > due) return;
         }
+
+        options += `<option value="${child.key}">${task.title || 'Untitled Task'}</option>`;
+        count++;
       });
-      document.getElementById('taskId').innerHTML = options;
+
+      select.innerHTML = count ? options : '<option value="">No tasks for your department</option>';
+    }).catch(err => {
+      select.innerHTML = '<option value="">Error loading tasks</option>';
+      console.error(err);
     });
   }
 
   function loadQuestion(){
     let taskId = document.getElementById('taskId').value;
-    if(taskId == 'Choose your Assignment...') return;
-    db.ref('tasks/' + taskId).once('value', snap=>{
+    if(!taskId){
+      document.getElementById('questionDisplay').classList.add('hidden');
+      document.getElementById('answerBox').classList.add('hidden');
+      document.getElementById('submitBtn').classList.add('hidden');
+      return;
+    }
+    db.ref('tasks/' + taskId).once('value', snap => {
       let t = snap.val();
-      document.getElementById('questionDisplay').innerHTML = `<b>Question:</b><p>${t.question}</p>`;
+      if(!t) return;
+      document.getElementById('questionDisplay').innerHTML = `<b>Question:</b><p style="margin-top:6px">${t.question || 'No question text'}</p>`;
       document.getElementById('questionDisplay').classList.remove('hidden');
       document.getElementById('answerBox').classList.remove('hidden');
       document.getElementById('submitBtn').classList.remove('hidden');
@@ -183,129 +445,181 @@
 
   function submitTask(){
     let taskId = document.getElementById('taskId').value;
-    let answer = document.getElementById('answer').value;
-    if(taskId=='Choose your Assignment...' || answer==""){ 
-      alert("Please select assignment and write answer"); 
-      return; 
+    let answer = document.getElementById('answer').value.trim();
+    if(!taskId || !answer){
+      alert("Please select assignment and write answer");
+      return;
     }
 
-    // Check if task has expired
-    db.ref('tasks/' + taskId).once('value', snap=>{
+    db.ref('tasks/' + taskId).once('value', snap => {
       let task = snap.val();
-      if(!task || task.status === 'expired' || Date.now() > task.due){
+      if(!task){
+        alert("Task not found");
+        return;
+      }
+      if(task.status === 'expired'){
         alert("This task has expired. You cannot submit.");
         return;
       }
+      let due = task.due;
+      if(due){
+        if(typeof due === 'string') due = new Date(due).getTime();
+        if(!isNaN(due) && Date.now() > due){
+          alert("This task has expired. You cannot submit.");
+          return;
+        }
+      }
 
       db.ref('submissions/' + taskId + '/' + studentEmail).set({
-        answer: answer, 
-        name: currentUser.name, 
+        answer: answer,
+        name: currentUser.name,
         department: studentDept,
-        regno: currentUser.regno || '',
-        time: Date.now(), 
+        regno: currentUser.regNumber || currentUser.regno || '',
+        time: Date.now(),
         status: "pending",
         feedback: ""
-      }).then(()=>{
+      }).then(() => {
         alert("Submitted Successfully ✓");
         document.getElementById('answer').value = "";
+        document.getElementById('taskId').value = "";
+        document.getElementById('questionDisplay').classList.add('hidden');
+        document.getElementById('answerBox').classList.add('hidden');
+        document.getElementById('submitBtn').classList.add('hidden');
         loadMyTasksStatus();
         showPage('tasks');
       }).catch(err => alert("DB Error: " + err.message));
     });
   }
 
+  // ========== MY TASKS - collapsible list ==========
   function loadMyTasksStatus(){
-    db.ref('submissions').once('value', snap=>{
-      let html = '';
+    const list = document.getElementById('myTasksList');
+    list.innerHTML = '<p class="empty-msg">Loading...</p>';
+
+    db.ref('submissions').once('value', snap => {
+      let items = [];
       let promises = [];
 
-      snap.forEach(taskSnap=>{
+      snap.forEach(taskSnap => {
         let taskId = taskSnap.key;
         if(taskSnap.hasChild(studentEmail)){
           let sub = taskSnap.child(studentEmail).val();
-          
-          let p = db.ref('tasks/' + taskId).once('value').then(taskInfoSnap=>{
+          let p = db.ref('tasks/' + taskId).once('value').then(taskInfoSnap => {
             let taskData = taskInfoSnap.val();
-            let taskTitle = taskData ? taskData.title : taskId;
-
-            html += `<div class="task-card ${sub.status}">
-              <div class="task-header">
-                <h3>${taskTitle}</h3>
-                <span class="status ${sub.status}">${sub.status}</span>
-              </div>
-              <p><b>Your Answer:</b> ${sub.answer}</p>
-              <p><b>Feedback:</b> ${sub.feedback || 'No feedback yet'}</p>
-              ${sub.marks ? `<p><b>Marks:</b> ${sub.marks}</p>` : ''}
-            </div>`;
+            let taskTitle = taskData ? (taskData.title || 'Untitled') : taskId;
+            items.push({ taskId, taskTitle, sub });
           });
           promises.push(p);
         }
       });
 
-      Promise.all(promises).then(()=>{
-        document.getElementById('myTasksList').innerHTML = html || "No submissions yet";
+      Promise.all(promises).then(() => {
+        if(items.length === 0){
+          list.innerHTML = '<p class="empty-msg">No submissions yet</p>';
+          return;
+        }
+
+        // newest first if time exists
+        items.sort((a, b) => (b.sub.time || 0) - (a.sub.time || 0));
+
+        let html = '';
+        items.forEach((item, i) => {
+          let status = item.sub.status || 'pending';
+          html += `
+            <div class="task-card ${status}" id="taskCard${i}">
+              <div class="task-header" onclick="toggleTask(${i})">
+                <h3>${item.taskTitle}</h3>
+                <span class="status ${status}">${status}</span>
+                <span class="chevron">▼</span>
+              </div>
+              <div class="task-body">
+                <p><b>Your Answer:</b> ${item.sub.answer || '-'}</p>
+                <p><b>Feedback:</b> ${item.sub.feedback || 'No feedback yet'}</p>
+                ${item.sub.marks !== undefined && item.sub.marks !== '' ? `<p><b>Marks:</b> ${item.sub.marks}</p>` : ''}
+              </div>
+            </div>`;
+        });
+        list.innerHTML = html;
       });
     });
   }
-  
+
+  function toggleTask(index){
+    const card = document.getElementById('taskCard' + index);
+    if(card) card.classList.toggle('open');
+  }
+
   function updateProfile(){
-    let newName = document.getElementById('sName').value;
-    db.ref('users/' + studentEmail).update({ name: newName }).then(()=>{
-      currentUser.name = newName;
+    let newName = document.getElementById('sName').value.trim();
+    let newPass = document.getElementById('sPassword').value.trim();
+    let updates = {};
+    if(newName) updates.name = newName;
+    if(newPass) updates.password = newPass;
+    if(Object.keys(updates).length === 0){
+      alert("You didn't change anything");
+      return;
+    }
+    db.ref('users/' + studentEmail).update(updates).then(() => {
+      if(newName) currentUser.name = newName;
+      if(newPass) currentUser.password = newPass;
       localStorage.setItem('currentUser', JSON.stringify(currentUser));
       alert("Profile Updated!");
+      document.getElementById('pName').innerText = currentUser.name;
+      document.getElementById('sPassword').value = '';
     }).catch(err => alert("DB Error: " + err.message));
   }
 
   // ========== NOTIFICATIONS ==========
   function loadNotifications(){
     let container = document.getElementById('notifList');
-    container.innerHTML = "Loading...";
+    container.innerHTML = '<p class="empty-msg">Loading...</p>';
 
-    db.ref('notifications/' + studentEmail).orderByChild('createdAt').once('value', snap=>{
+    db.ref('notifications/' + studentEmail).orderByChild('createdAt').once('value', snap => {
       if(!snap.exists()){
-        container.innerHTML = "<p style='text-align:center;color:gray'>No notifications</p>";
+        container.innerHTML = '<p class="empty-msg">No notifications</p>';
         document.getElementById('notifCount').innerText = '0';
         return;
       }
 
-      let html = '';
-      let unread = 0;
       let notifs = [];
-
-      snap.forEach(child=>{
-        notifs.push({key: child.key, ...child.val()});
+      snap.forEach(child => {
+        notifs.push({ key: child.key, ...child.val() });
       });
 
-      // nuna sababbi a sama
-      notifs.reverse().forEach(n=>{
+      notifs.reverse(); // newest first
+
+      let html = '';
+      let unread = 0;
+      notifs.forEach(n => {
         if(!n.read) unread++;
         html += `
-          <div class="task-card" style="border-left-color:${n.read ? '#94a3b8' : '#2563eb'}">
-            <h3>${n.title}</h3>
-            <p>${n.message}</p>
-            <p style="font-size:12px;color:#64748b;margin-top:6px">${new Date(n.createdAt).toLocaleString()}</p>
-          </div>
-        `;
+          <div class="notif-item ${n.read ? 'read' : ''}">
+            <h3>${n.title || 'Notification'}</h3>
+            <p>${n.message || ''}</p>
+            <p class="notif-time">${n.createdAt ? new Date(n.createdAt).toLocaleString() : ''}</p>
+          </div>`;
       });
 
       container.innerHTML = html;
       document.getElementById('notifCount').innerText = unread;
 
       // mark all as read
-      snap.forEach(child=>{
+      snap.forEach(child => {
         if(!child.val().read){
-          db.ref('notifications/' + studentEmail + '/' + child.key).update({read: true});
+          db.ref('notifications/' + studentEmail + '/' + child.key).update({ read: true });
         }
       });
+    }).catch(err => {
+      container.innerHTML = '<p class="empty-msg">Error loading notifications</p>';
+      console.error(err);
     });
   }
 
-  // Real-time badge update
-  db.ref('notifications/' + studentEmail).on('value', snap=>{
+  // Real-time badge
+  db.ref('notifications/' + studentEmail).on('value', snap => {
     let unread = 0;
     if(snap.exists()){
-      snap.forEach(child=>{
+      snap.forEach(child => {
         if(!child.val().read) unread++;
       });
     }
